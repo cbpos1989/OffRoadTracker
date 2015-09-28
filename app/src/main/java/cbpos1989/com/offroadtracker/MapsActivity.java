@@ -19,12 +19,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import java.util.ArrayList;
+/**
+ * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
+ */
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     protected GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLocation;
+    private ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
 
 
     @Override
@@ -83,8 +88,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        Toast.makeText(this,"Lat: " + latitude + " Long: " + longitude,Toast.LENGTH_SHORT).show();
+        coordinates.add(new Coordinate(latitude, longitude));
+        //Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
         mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
+
+
+        if(coordinates.size() > 1){
+            drawLine();
+        }
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -100,7 +115,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     public void onConnected(Bundle bundle) {
         if (mLocation != null) {
+            coordinates.add(new Coordinate(mLocation.getLatitude(),mLocation.getLongitude()));
             mMap.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
+
         } else {
             Toast.makeText(this, "NO LOCATION", Toast.LENGTH_LONG).show();
         }
@@ -126,12 +143,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void drawLine(){
+        Toast.makeText(this, "In Draw Line Method", Toast.LENGTH_SHORT).show();
+        Coordinate prevCoordinates = coordinates.get(coordinates.size() - 2);
+        Coordinate currCoordinates = coordinates.get(coordinates.size() - 1);
+
         Polygon polygon = mMap.addPolygon(new PolygonOptions()
-                .add(new LatLng(22.154975,113.729675),
-                        new LatLng(22.265587,113.822372),
-                        new LatLng(22.188677,113.953521),
-                        new LatLng(22.047459,113.904769))
+                .add(new LatLng(prevCoordinates.getLatitude(),prevCoordinates.getLongitude()),
+                        new LatLng(currCoordinates.getLatitude(),currCoordinates.getLongitude()))
                 .strokeWidth(5)
-                .strokeColor(Color.BLUE));
+                .strokeColor(Color.RED));
+
     }
 }
