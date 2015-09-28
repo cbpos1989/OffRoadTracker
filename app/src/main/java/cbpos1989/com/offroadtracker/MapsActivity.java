@@ -1,5 +1,6 @@
 package cbpos1989.com.offroadtracker;
 
+import android.graphics.Color;
 import android.location.Location;
 //import android.location.LocationListener;
 import android.support.v4.app.FragmentActivity;
@@ -15,6 +16,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -22,6 +25,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     protected GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,5 +123,15 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    private void drawLine(){
+        Polygon polygon = mMap.addPolygon(new PolygonOptions()
+                .add(new LatLng(22.154975,113.729675),
+                        new LatLng(22.265587,113.822372),
+                        new LatLng(22.188677,113.953521),
+                        new LatLng(22.047459,113.904769))
+                .strokeWidth(5)
+                .strokeColor(Color.BLUE));
     }
 }
