@@ -14,6 +14,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -37,6 +38,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +47,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
         } catch (SecurityException se) {
             se.printStackTrace();
         }
@@ -104,11 +106,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-        Toast.makeText(this, "Lat: " + latitude + " Long: " + longitude, Toast.LENGTH_SHORT).show();
+        if(mLocation != null) {
+            mLocation = location;
+        }
+        LatLng latLng = new LatLng(latitude, longitude);
+
+        //Toast.makeText(this, "Lat: " + latitude + " Long: " + longitude, Toast.LENGTH_SHORT).show();
         coordinates.add(new Coordinate(latitude, longitude));
         //Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
+        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
 
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         if (coordinates.size() > 1) {
             drawLine();
@@ -143,8 +151,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     public void onConnected(Bundle bundle) {
         if (mLocation != null) {
+            LatLng latLng = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
+
             coordinates.add(new Coordinate(mLocation.getLatitude(), mLocation.getLongitude()));
-            mMap.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
+            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         } else {
             Toast.makeText(this, "NO LOCATION", Toast.LENGTH_LONG).show();
@@ -171,7 +182,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void drawLine() {
-        Toast.makeText(this, "In Draw Line Method", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "In Draw Line Method", Toast.LENGTH_SHORT).show();
         Coordinate prevCoordinates = coordinates.get(coordinates.size() - 2);
         Coordinate currCoordinates = coordinates.get(coordinates.size() - 1);
 
@@ -192,4 +203,5 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             se.printStackTrace();
         }
     }
+
 }
