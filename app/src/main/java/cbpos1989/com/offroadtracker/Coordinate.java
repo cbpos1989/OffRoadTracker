@@ -1,9 +1,11 @@
 package cbpos1989.com.offroadtracker;
 
+import java.io.Serializable;
+
 /**
  * Created by Colm O'Sullivan on 28/09/2015.
  */
-public class Coordinate {
+public class Coordinate implements Serializable{
     private double latitude;
     private double longitude;
 
