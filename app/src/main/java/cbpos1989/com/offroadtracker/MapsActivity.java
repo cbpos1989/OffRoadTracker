@@ -1,48 +1,41 @@
 package cbpos1989.com.offroadtracker;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
+//import android.location.LocationListener;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-//import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
+import java.util.ArrayList;
+/**
+ * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
+ */
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     protected GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLocation;
+    private ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
 
-    @SuppressLint("NewApi")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        }catch(SecurityException e){
-            e.printStackTrace();
-        }
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -95,23 +88,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     public void onLocationChanged(Location location) {
-        Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        Toast.makeText(this,"Lat: " + latitude + " Long: " + longitude,Toast.LENGTH_SHORT).show();
+        coordinates.add(new Coordinate(latitude, longitude));
+        //Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
         mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
-    }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
+        if(coordinates.size() > 1){
+            drawLine();
+        }
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -127,12 +115,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     public void onConnected(Bundle bundle) {
         if (mLocation != null) {
+            coordinates.add(new Coordinate(mLocation.getLatitude(),mLocation.getLongitude()));
             mMap.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
+
         } else {
             Toast.makeText(this, "NO LOCATION", Toast.LENGTH_LONG).show();
         }
 
-        //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
@@ -150,5 +140,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    private void drawLine(){
+        Toast.makeText(this, "In Draw Line Method", Toast.LENGTH_SHORT).show();
+        Coordinate prevCoordinates = coordinates.get(coordinates.size() - 2);
+        Coordinate currCoordinates = coordinates.get(coordinates.size() - 1);
+
+        Polygon polygon = mMap.addPolygon(new PolygonOptions()
+                .add(new LatLng(prevCoordinates.getLatitude(),prevCoordinates.getLongitude()),
+                        new LatLng(currCoordinates.getLatitude(),currCoordinates.getLongitude()))
+                .strokeWidth(5)
+                .strokeColor(Color.RED));
+
     }
 }
