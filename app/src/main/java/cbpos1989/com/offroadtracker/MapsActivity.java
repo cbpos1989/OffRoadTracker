@@ -14,6 +14,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -104,11 +105,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
+        LatLng latLng = new LatLng(latitude, longitude);
+
         Toast.makeText(this, "Lat: " + latitude + " Long: " + longitude, Toast.LENGTH_SHORT).show();
         coordinates.add(new Coordinate(latitude, longitude));
         //Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Marker"));
+        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
 
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         if (coordinates.size() > 1) {
             drawLine();
