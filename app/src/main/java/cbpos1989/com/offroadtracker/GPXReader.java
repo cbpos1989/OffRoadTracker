@@ -43,7 +43,6 @@ public class GPXReader {
 
             for (String str: output.split(" ")){
                 lines.add(str);
-                Log.i("GPX Output",str);
             }
 
             for(String str: lines) {
@@ -52,7 +51,6 @@ public class GPXReader {
 
                     try {
                         str = str.substring(index + 1, str.length()-1);
-                       // Toast.makeText(mapsActivity,"Here in Lat " + index + " " + str, Toast.LENGTH_SHORT).show();
                         latitude = Double.parseDouble(str);
                         Log.i("LatitudeParsed","Latitude: " + latitude);
                     } catch (NumberFormatException nfe){
@@ -62,7 +60,7 @@ public class GPXReader {
                 if(str.contains("lon")){
                     int index = str.indexOf('\u0022');
                     try {
-                        str = str.substring(index + 1, str.length() -1);
+                        str = str.substring(index + 1, str.length() -2);
                         longitude = Double.parseDouble(str);
                         Log.i("LongitudeParsed","Longitude: " + latitude);
                     } catch(NumberFormatException nfe){
@@ -73,9 +71,10 @@ public class GPXReader {
                 points.add(new LatLng(latitude, longitude));
             }
 
-            for(LatLng lt: getPoints()){
-                Log.i("GPX Output", lt.toString());
-            }
+
+//            for(LatLng lt: getPoints()){
+//                Log.i("GPX Output", lt.toString());
+//            }
 
 
         } catch (FileNotFoundException e) {

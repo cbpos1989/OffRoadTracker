@@ -2,12 +2,12 @@ package cbpos1989.com.offroadtracker;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Path;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Environment;
+
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,23 +22,16 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
+
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 
-import tomc.gpx.GPX;
+
 
 //import com.google.android.gms.location.LocationListener;
 
@@ -55,11 +48,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Polyline route;
     private final String filename = "route.gpx";
 
-    private LatLng prevCoordinates;
-    private LatLng currCoordinates;
+    private static LatLng prevCoordinates;
 
     File routeFile;
-    GPX gpx;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,31 +65,25 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         } catch (SecurityException se) {
             se.printStackTrace();
         }
+
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
-
-        StringBuffer text  = new StringBuffer("");
-
 
         routeFile = new File(this.getFilesDir(), filename);
         GPXReader gpxReader = new GPXReader(this);
         gpxReader.readPath(routeFile);
 
 
-        if(gpxReader.getPoints().size() > 0){
+        if(gpxReader.getPoints().size() > 1){
             for(LatLng lt: gpxReader.getPoints()){
-                if(mMap != null) {
-                    drawLine(lt);
-                    Log.i("GPX Output", lt.toString());
-                }
-
+                drawLine(lt);
+                Log.i("GPX Output", lt.toString());
             }
         }
 
 
     }
-
 
     @Override
     protected void onResume() {
@@ -121,18 +107,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         super.onDestroy();
     }
 
-
-    void saveFile(File file){
-        try{
-            FileWriter fw = new FileWriter(file);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write("Hello World");
-            bw.flush();
-            bw.close();
-        } catch (IOException ioe){
-            System.out.println("Didn't write to file");
-        }
-    }
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
@@ -181,15 +155,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
         LatLng latLng = new LatLng(latitude, longitude);
 
-        //Toast.makeText(this, "Lat: " + latitude + " Long: " + longitude, Toast.LENGTH_SHORT).show();
-        points.add(location);
-        //Toast.makeText(this, "NEW LOCATION", Toast.LENGTH_LONG).show();
         mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         drawLine(latLng);
-
     }
 
     @Override
@@ -221,11 +191,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void onConnected(Bundle bundle) {
         if (mLocation != null) {
             LatLng latLng = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
-            currCoordinates = latLng;
             prevCoordinates = latLng;
-            points.add(mLocation);
+            Log.i("onConnected", prevCoordinates + "");
             mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         } else {
             Toast.makeText(this, "NO LOCATION", Toast.LENGTH_LONG).show();
@@ -245,19 +214,26 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void drawLine(LatLng latlng) {
-        //Toast.makeText(this, "In Draw Line Method", Toast.LENGTH_SHORT).show();
 
-        //Location prevCoordinates = points.get(points.size() - 2);
-        //Location currCoordinates = points.get(points.size() - 1);
-        currCoordinates = latlng;
+        LatLng currCoordinates = latlng;
+
+
+//        route = mMap.addPolyline(new PolylineOptions().geodesic(true)
+//                .add(prevCoordinates)
+//                .add(currCoordinates));
+//        route.setColor(Color.RED);
+//        route.setWidth(2.5F);
 
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
-                .add(prevCoordinates)
-                .add(currCoordinates));
+                        .add(prevCoordinates)
+                        .add(new LatLng(0.0,-0.2))
+
+        );
+
         route.setColor(Color.RED);
         route.setWidth(2.5F);
 
-        prevCoordinates = latlng;
+       prevCoordinates = currCoordinates;
 
 
     }
