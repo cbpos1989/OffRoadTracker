@@ -2,7 +2,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/layout">
 
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,6 +33,7 @@
         android:layout_width="match_parent"
         android:onClick="stopLocationListener"
         android:id="@+id/stopLocListenerBtn"
-        android:text="Stop" />
+        android:text="Stop"
+        />
 
 </LinearLayout>
