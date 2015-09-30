@@ -39,7 +39,7 @@ public class GPXWriter {
         String footer = "</trkseg></trk></gpx>";
 
         try {
-            FileWriter writer = new FileWriter(file, false);
+            FileWriter writer = new FileWriter(file, true);
             writer.append(header);
             writer.append(name);
             writer.append(segments);
