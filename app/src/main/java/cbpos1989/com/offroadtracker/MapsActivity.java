@@ -1,16 +1,31 @@
 package cbpos1989.com.offroadtracker;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
-
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.Bundle;
-
 import android.support.v4.app.FragmentActivity;
+import android.text.InputType;
+import android.view.LayoutInflater;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -20,9 +35,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -33,14 +48,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
-
 //import com.google.android.gms.location.LocationListener;
 
 /**
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
  */
-public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener {
 
     protected GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -48,7 +61,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Location mLocation;
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
+
     private final String filename = "route.gpx";
+    private boolean startStopLoc = false;
+    private  boolean firstCoord = true;
 
     private static LatLng prevCoordinates;
 
@@ -62,11 +78,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 2, this);
-        } catch (SecurityException se) {
-            se.printStackTrace();
-        }
+//        try {
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 2, this);
+//        } catch (SecurityException se) {
+//            se.printStackTrace();
+//        }
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -101,6 +117,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
 
             }
+            mMap.addMarker(new MarkerOptions().position(polylinePoints.get(polylinePoints.size() -1)).title("Marker"));
         }
 
 
@@ -120,7 +137,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             routeFile = new File(this.getFilesDir(),filename);
             routeFile.createNewFile();
             gpxFile.writePath(routeFile, "GPX_Route", points);
-            route.remove();
+
+           if(route != null) {
+                route.remove();
+           }
+
 
             Toast.makeText(this,"Finished writing" + filename,Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
@@ -153,6 +174,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
+                mMap.setOnMapLongClickListener(this);
             }
         }
     }
@@ -175,12 +197,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if(mLocation != null) {
             mLocation = location;
         }
-
         LatLng latLng = new LatLng(latitude, longitude);
 
-        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+
+       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         points.add(location);
 
@@ -211,7 +232,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 .addApi(LocationServices.API)
                 .build();
 
-
+        //createLocationRequest();
     }
 
     @Override
@@ -220,17 +241,23 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     public void onConnectionSuspended(int i) {
+
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 
     private void drawLine(Location location) {
         LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
 
         //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
-
+         if(firstCoord){
+             mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
+             prevCoordinates = currCoordinates;
+             firstCoord = false;
+         }
 
         Polyline liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
@@ -238,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         );
 
         liveRoute.setColor(Color.RED);
-        liveRoute.setWidth(2.5F);
+        liveRoute.setWidth(5.0F);
         Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
         prevCoordinates = currCoordinates;
     }
@@ -247,31 +274,145 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LatLng currCoordinates = latlng;
 
-
-        //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
-
-
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
                         .add(currCoordinates)
         );
 
         route.setColor(Color.RED);
-        route.setWidth(2.5F);
+        route.setWidth(5.0F);
         Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
         prevCoordinates = currCoordinates;
-
 
     }
 
     public void stopLocationListener(View view) {
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        try {
-            locationManager.removeUpdates(this);
-        } catch (SecurityException se) {
-            se.printStackTrace();
+        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+
+        if(startStopLoc){
+            Toast.makeText(this, "IN STOP", Toast.LENGTH_SHORT).show();
+
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+
+            button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
+
+            startStopLoc = !startStopLoc;
+        } else{
+            Toast.makeText(this, "IN START", Toast.LENGTH_SHORT).show();
+
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+
+            button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
+
+            startStopLoc = !startStopLoc;
         }
     }
 
+    @Override
+    public void onMapLongClick(final LatLng latLng) {
+//        mMap.addMarker(new MarkerOptions().position(latLng).title(
+//                latLng.toString()));
+
+//        Toast.makeText(getApplicationContext(),
+//                "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
+//                .show();
+
+        //---------------CRAZY CODE BELOW THIS POINT-----------------------
+
+        // Init the dialog object
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("Enter description");
+
+        // Set up the input
+
+        LayoutInflater factory = LayoutInflater.from(getApplicationContext());
+
+        final View v = factory.inflate(R.layout.dialog_layout, null);
+        final EditText input = (EditText) v.findViewById(R.id.dialog_edit_text);
+        final RadioGroup radioGroup = (RadioGroup) v.findViewById(R.id.radio_group_dialog);
+        //input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        builder.setView(v);
+
+        //builder.set
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "in method", Toast.LENGTH_SHORT).show();
+
+                String description;
+                description = input.getText().toString();
+
+                int bitmap = 0;
+
+                RadioButton checkedButton = (RadioButton) v.findViewById(radioGroup.getCheckedRadioButtonId());
+
+                switch (checkedButton.getId()){
+                    case R.id.interest_radio_button:
+                        bitmap = R.drawable.ic_explore_white_48dp;
+                        break;
+
+                    case R.id.danger_radio_button:
+                        bitmap = R.drawable.ic_close_white_48dp;
+                        break;
+                }
+
+
+                //Bitmap bitmap = drawableToBitmap(checkedButton.getBackground());
+
+                //checkedButton.getButtonDrawable()
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(description)
+                        .icon(BitmapDescriptorFactory.fromResource(bitmap)));
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        Bitmap bitmap = null;
+
+        if (drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if(bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
+        }
+
+        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
+
+    public void goBack(View v){
+        onBackPressed();
+    }
 }

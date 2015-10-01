@@ -3,16 +3,29 @@ package cbpos1989.com.offroadtracker;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.io.File;
+import java.util.Map;
+
 public class MainMenu extends AppCompatActivity {
+    private final String filename = "route.gpx";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+    }
+
+    @Override
+    protected void onDestroy(){
+        File routeFile = new File(this.getFilesDir(), filename);
+        boolean routeDeleted = routeFile.delete();
+        Log.i("Deleted", "Route Deleted");
+        super.onDestroy();
     }
 
     @Override
@@ -41,5 +54,7 @@ public class MainMenu extends AppCompatActivity {
         Intent mapActivity = new Intent(this, MapsActivity.class);
         startActivity(mapActivity);
     }
+
+
 
 }
