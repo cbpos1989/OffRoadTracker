@@ -10,9 +10,9 @@
     <item android:drawable="@drawable/ic_launcher_selected"
         android:state_selected="true" />
 
-    <item android:drawable="@drawable/ic_launcher_selected"
+    <item android:drawable="@drawable/ic_pause_circle_outline_white_48dp"
         android:state_checked="true" />
 
-    <item android:drawable="@drawable/ic_launcher" />
+    <item android:drawable="@drawable/ic_play_circle_outline_white_48dp" />
 
 </selector>

@@ -55,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Location mLocation;
     private ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
     private boolean firstLoc = true;
-    private boolean startStopLoc = true;
+    private boolean startStopLoc = false;
 
 
     @Override
@@ -67,13 +67,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        if(locationManager != null){
-            try{
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
-            }catch(SecurityException se){
-                se.printStackTrace();
-            }
-        }
+//        if(locationManager != null){
+//            try{
+//                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+//            }catch(SecurityException se){
+//                se.printStackTrace();
+//            }
+//        }
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -194,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void stopLocationListener(View view) {
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        Button button = (Button) findViewById(R.id.stopLocListenerBtn);
+        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         if(startStopLoc){
             Toast.makeText(this, "IN STOP", Toast.LENGTH_SHORT).show();
@@ -205,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 se.printStackTrace();
             }
 
-            button.setText("START");
+            button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
 
             startStopLoc = !startStopLoc;
         } else{
@@ -217,7 +217,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 se.printStackTrace();
             }
 
-            button.setText("STOP");
+            button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
 
             startStopLoc = !startStopLoc;
         }
@@ -316,5 +316,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
         return bitmap;
+    }
+
+    public void goBack(View v){
+        onBackPressed();
     }
 }

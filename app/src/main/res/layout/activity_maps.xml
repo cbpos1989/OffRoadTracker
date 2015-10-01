@@ -16,24 +16,39 @@
         android:layout_weight="2"
         android:gravity="center">
 
-        <TextView
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Alex"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:foregroundGravity="center"
-            />
+            android:layout_gravity="right|bottom"
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            android:id="@+id/stopLocListenerBtn"
+            android:paddingRight="10dp"
+            android:onClick="stopLocationListener"
+            android:src="@drawable/selector_test"/>
+
+        <ImageButton
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_gravity="left|bottom"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="20dp"
+            android:id="@+id/compassBtn"
+            android:paddingRight="10dp"
+            android:adjustViewBounds="true"
+            android:onClick="goBack"
+            android:src="@drawable/compass_card"/>
 
     </fragment>
 
 
-    <Button
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:onClick="stopLocationListener"
-        android:id="@+id/stopLocListenerBtn"
-        android:text="Stop"
-        />
+    <!--<Button-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:onClick="stopLocationListener"-->
+        <!--android:id="@+id/stopLocListenerBtn"-->
+        <!--android:text="Stop"-->
+        <!--/>-->
 
 </LinearLayout>
