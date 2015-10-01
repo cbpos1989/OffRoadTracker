@@ -43,38 +43,42 @@ public class GPXReader {
 
             for (String str: output.split(" ")){
                 lines.add(str);
+                Log.i("Split Output", str);
             }
 
             for(String str: lines) {
-                if (str.contains("lat")) {
-                    int index = str.indexOf('\u0022');
+                if(str.contains("<trkpt") || str.contains("<time>")){
+                    continue;
+                } else if (str.contains("lat")) {
+                        int index = str.indexOf('\u0022');
 
-                    try {
-                        str = str.substring(index + 1, str.length()-1);
-                        latitude = Double.parseDouble(str);
-                        Log.i("LatitudeParsed","Latitude: " + latitude);
-                    } catch (NumberFormatException nfe){
-                        nfe.printStackTrace();
-                    }
-                }
-                if(str.contains("lon")){
-                    int index = str.indexOf('\u0022');
-                    try {
-                        str = str.substring(index + 1, str.length() -2);
-                        longitude = Double.parseDouble(str);
-                        Log.i("LongitudeParsed","Longitude: " + latitude);
-                    } catch(NumberFormatException nfe){
-                        nfe.printStackTrace();
-                    }
+                        try {
+                            str = str.substring(index + 1, str.length() - 1);
+                            latitude = Double.parseDouble(str);
+                            Log.i("LatitudeParsed", "Latitude: " + latitude);
+                        } catch (NumberFormatException nfe) {
+                            nfe.printStackTrace();
+                        }
+                } else if(str.contains("lon")){
+                        int index = str.indexOf('\u0022');
+                        try {
+                            str = str.substring(index + 1, str.length() - 2);
+                            longitude = Double.parseDouble(str);
+                            Log.i("LongitudeParsed", "Longitude: " + longitude);
+                        } catch (NumberFormatException nfe) {
+                            nfe.printStackTrace();
+                        }
+
+                        points.add(new LatLng(latitude, longitude));
                 }
 
-                points.add(new LatLng(latitude, longitude));
+
             }
 
 
-//            for(LatLng lt: getPoints()){
-//                Log.i("GPX Output", lt.toString());
-//            }
+            for(LatLng lt: getPoints()){
+                Log.i("GPX Output", lt.toString());
+            }
 
 
         } catch (FileNotFoundException e) {
