@@ -157,9 +157,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
-                .build();
+                .build();//dadawdadwa
 
         //createLocationRequest();
+        //dwadawdwadwadawddwadadawdadaw
     }
 
     @Override
