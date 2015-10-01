@@ -77,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 2, this);
         } catch (SecurityException se) {
             se.printStackTrace();
         }
@@ -90,6 +90,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             if (lastKnownLocationGPS != null) {
+
                 prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
                 //onLocationChanged(lastKnownLocationGPS);
@@ -98,22 +99,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             se.printStackTrace();
         }
 
+        points.clear();
         routeFile = new File(this.getFilesDir(), filename);
         GPXReader gpxReader = new GPXReader(this);
         gpxReader.readPath(routeFile);
-        routeFile.deleteOnExit();
+        //routeFile.deleteOnExit();
 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
         if(polylinePoints.size() > 1){
-            for(int i = 0; i < polylinePoints.size()-1;++i){
-                Log.i("GPX Output",polylinePoints.get(i).toString());
+            prevCoordinates = polylinePoints.get(0);
+            for(int i = 0; i < polylinePoints.size();++i){
+                Log.i("Array Sizes", i + "Reader Array: " + gpxReader.getPoints().size() + " Polyline Array: " + polylinePoints.size());
 
-                if(i < 2){
-                    continue;
-                }
                 drawLine(polylinePoints.get(i));
+
+
             }
         }
+
 
 
     }
@@ -131,6 +134,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             routeFile = new File(this.getFilesDir(),filename);
             routeFile.createNewFile();
             gpxFile.writePath(routeFile, "GPX_Route", points);
+            route.remove();
+
             Toast.makeText(this,"Finished writing" + filename,Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -193,8 +198,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         points.add(location);
 
-        drawLine(latLng);
+        drawLine(location);
     }
+
+
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -235,11 +242,29 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     }
 
+    private void drawLine(Location location) {
+        LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
+
+        //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
+
+
+        Polyline liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
+                        .add(prevCoordinates)
+                        .add(currCoordinates)
+        );
+
+        liveRoute.setColor(Color.RED);
+        liveRoute.setWidth(2.5F);
+        Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
+        prevCoordinates = currCoordinates;
+    }
+
     private void drawLine(LatLng latlng) {
 
         LatLng currCoordinates = latlng;
 
-        Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
+
+        //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
 
 
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
@@ -249,8 +274,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         route.setColor(Color.RED);
         route.setWidth(2.5F);
-
-       prevCoordinates = currCoordinates;
+        Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
+        prevCoordinates = currCoordinates;
 
 
     }
