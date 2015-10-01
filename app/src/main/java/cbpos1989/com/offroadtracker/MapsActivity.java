@@ -138,9 +138,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             routeFile.createNewFile();
             gpxFile.writePath(routeFile, "GPX_Route", points);
 
-           // if(route != null) {
+           if(route != null) {
                 route.remove();
-           // }
+           }
 
 
             Toast.makeText(this,"Finished writing" + filename,Toast.LENGTH_SHORT).show();
