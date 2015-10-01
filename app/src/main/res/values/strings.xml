@@ -6,4 +6,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="open_map_button">Open Map</string>
+    <string name="interest">Point of Interest</string>
+    <string name="caution">Caution</string>
+    <string name="danger">Danger</string>
+    <string name="edit_dialog_hint">Please enter a title</string>
 </resources>
