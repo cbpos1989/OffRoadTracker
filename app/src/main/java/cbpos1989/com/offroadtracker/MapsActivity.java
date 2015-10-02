@@ -116,11 +116,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
         if(polylinePoints.size() > 1){
             prevCoordinates = polylinePoints.get(0);
+            mMap.addMarker(new MarkerOptions().position(prevCoordinates).title("Marker"));
             for(int i = 0; i < polylinePoints.size();++i){
                 Log.i("Array Sizes", i + "Reader Array: " + gpxReader.getPoints().size() + " Polyline Array: " + polylinePoints.size());
                 drawLine(polylinePoints.get(i));
             }
-            mMap.addMarker(new MarkerOptions().position(polylinePoints.get(polylinePoints.size() -1)).title("Marker"));
+
         }
     }
 
