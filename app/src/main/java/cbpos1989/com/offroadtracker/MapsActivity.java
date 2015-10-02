@@ -152,6 +152,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             editor.commit();
             Log.i("drawLine","Value of commited firstCoord: " + firstCoord);
 
+            LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+
         }
         super.onDestroy();
     }
