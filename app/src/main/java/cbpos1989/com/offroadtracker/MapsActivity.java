@@ -55,12 +55,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Location mLocation;
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
+    private Polyline liveRoute;
 
     private final String filename = "route.gpx";
     private boolean startStopLoc = false;
-    private  boolean firstCoord = true;
+    static  boolean firstCoord = true;
     private SharedPreferences mPrefs;
     private static LatLng prevCoordinates;
+    private MapsActivity thisActivity = this;
 
     File routeFile;
 
@@ -82,8 +84,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        firstCoord = sharedPreferences.getBoolean("first_coord", true);
+       // SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+       // firstCoord = sharedPreferences.getBoolean("first_coord", true);
         Log.i("drawLine","Value of firstCoord" + firstCoord);
 
         try {
@@ -145,12 +147,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         } finally {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("first_coord", firstCoord);
-            editor.commit();
+            //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            //SharedPreferences.Editor editor = sharedPreferences.edit();
+            //editor.putBoolean("first_coord", firstCoord);
+           // editor.commit();
             Log.i("drawLine","Value of commited firstCoord: " + firstCoord);
-
         }
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -223,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         points.add(location);
         Log.i("onLocationChanged", "Reached onLocationChanged before drawLine()");
-        Toast.makeText(this, "IN ONLOCCHANGED", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "IN ONLOCCHANGED", Toast.LENGTH_SHORT).show();
         drawLine(location);
     }
 
@@ -269,7 +270,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void drawLine(Location location) {
         LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
 
-        Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
 
         if(firstCoord){
             Log.i("drawLine", "Reached drawLine if statement");
@@ -279,7 +280,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
 
-        Polyline liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
+        liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
                         .add(currCoordinates)
         );
@@ -312,35 +313,83 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     public void stopLocationListener(View view) {
-        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        //---------------CRAZY CODE BELOW THIS POINT-----------------------
 
-        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+        // Init the dialog object
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("Enter description");
 
-        if(startStopLoc){
-            Toast.makeText(this, "IN STOP", Toast.LENGTH_SHORT).show();
+        // Set up the input
 
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
+        //LayoutInflater factory = LayoutInflater.from(getApplicationContext());
+
+        //final View v = factory.inflate(R.layout.dialog_layout, null);
+        //final EditText input = (EditText) v.findViewById(R.id.dialog_edit_text);
+        //final RadioGroup radioGroup = (RadioGroup) v.findViewById(R.id.radio_group_dialog);
+        //input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        //builder.setView(v);
+
+        //builder.setTitle("");
+
+        // Set up the buttons
+        builder.setPositiveButton("Start/Stop", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Toast.makeText(getApplicationContext(), "in method", Toast.LENGTH_SHORT).show();
+
+                LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+                ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+
+                if (startStopLoc) {
+                    Toast.makeText(getApplicationContext(), "IN STOP", Toast.LENGTH_SHORT).show();
+
+                    try {
+                        locationManager.removeUpdates(thisActivity);
+                    } catch (SecurityException se) {
+                        se.printStackTrace();
+                    }
+
+                    button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
+
+                    startStopLoc = !startStopLoc;
+                } else {
+                    Toast.makeText(getApplicationContext(), "IN START", Toast.LENGTH_SHORT).show();
+
+                    try {
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, thisActivity);
+                    } catch (SecurityException se) {
+                        se.printStackTrace();
+                    }
+
+                    button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
+
+                    startStopLoc = !startStopLoc;
+                }
+
             }
-
-            button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
-
-            startStopLoc = !startStopLoc;
-        } else{
-            Toast.makeText(this, "IN START", Toast.LENGTH_SHORT).show();
-
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
+        });
+        builder.setNegativeButton("New Route", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+//
+//                if (route != null) {
+//                    Toast.makeText(thisActivity, "Removed Route", Toast.LENGTH_SHORT).show();
+//                    route.remove();
+//                }
+//                if (liveRoute != null) {
+//                    Toast.makeText(thisActivity, "Removed LiveRoute", Toast.LENGTH_SHORT).show();
+//                    liveRoute.remove();
+//                }
+//                File routeFile = new File(thisActivity.getFilesDir(), filename);
+//                boolean routeDeleted = routeFile.delete();
+//                Log.i("Deleted", "Route Deleted");
             }
+        });
 
-            button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
+        builder.show();
 
-            startStopLoc = !startStopLoc;
-        }
     }
 
     @Override
@@ -384,7 +433,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
                 RadioButton checkedButton = (RadioButton) v.findViewById(radioGroup.getCheckedRadioButtonId());
 
-                switch (checkedButton.getId()){
+                switch (checkedButton.getId()) {
                     case R.id.interest_radio_button:
                         bitmap = R.drawable.ic_explore_white_48dp;
                         break;
@@ -441,3 +490,36 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         onBackPressed();
     }
 }
+
+/*
+
+LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+
+        if(startStopLoc){
+            Toast.makeText(this, "IN STOP", Toast.LENGTH_SHORT).show();
+
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+
+            button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
+
+            startStopLoc = !startStopLoc;
+        } else{
+            Toast.makeText(this, "IN START", Toast.LENGTH_SHORT).show();
+
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+
+            button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
+
+            startStopLoc = !startStopLoc;
+           }
+ */
