@@ -12,27 +12,20 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
-import android.text.InputType;
-import android.view.LayoutInflater;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -40,34 +33,29 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 //import com.google.android.gms.location.LocationListener;
 
 /**
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
+ *
  */
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener {
 
     protected GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private LocationRequest mLocationRequest;
     private Location mLocation;
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
 
     private final String filename = "route.gpx";
     private boolean startStopLoc = false;
-    private  boolean firstCoord = true;
-    private SharedPreferences mPrefs;
+    static boolean firstCoord = true;
     private static LatLng prevCoordinates;
 
     File routeFile;
@@ -80,43 +68,41 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-//        try {
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 2, this);
-//        } catch (SecurityException se) {
-//            se.printStackTrace();
-//        }
-
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        firstCoord = sharedPreferences.getBoolean("first_coord", true);
+        //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        //firstCoord = sharedPreferences.getBoolean("first_coord", true);
         Log.i("drawLine","Value of firstCoord" + firstCoord);
 
         try {
             Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             if (lastKnownLocationGPS != null) {
-
                 prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
-                //onLocationChanged(lastKnownLocationGPS);
             }
         }catch(SecurityException se){
             se.printStackTrace();
         }
 
+        loadcurrentRoute();
+    }
+    /**
+     * Retrieves gpx file from internal app files and sends file to parser
+     * an ArrayList of LatLng is returned and used in for loop to redraw polylines route.
+     */
+    private void loadcurrentRoute(){
         points.clear();
         routeFile = new File(this.getFilesDir(), filename);
         GPXReader gpxReader = new GPXReader(this);
         gpxReader.readPath(routeFile);
-        //routeFile.deleteOnExit();
 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
         if(polylinePoints.size() > 1){
             prevCoordinates = polylinePoints.get(0);
-            mMap.addMarker(new MarkerOptions().position(prevCoordinates).title("Marker"));
+            mMap.addMarker(new MarkerOptions().position(polylinePoints.get(0)).title("Marker"));
             for(int i = 0; i < polylinePoints.size();++i){
                 Log.i("Array Sizes", i + "Reader Array: " + gpxReader.getPoints().size() + " Polyline Array: " + polylinePoints.size());
                 drawLine(polylinePoints.get(i));
@@ -147,10 +133,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         } finally {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("first_coord", firstCoord);
-            editor.commit();
+            //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            //SharedPreferences.Editor editor = sharedPreferences.edit();
+            //editor.putBoolean("first_coord", firstCoord);
+            //editor.apply();
             Log.i("drawLine","Value of commited firstCoord: " + firstCoord);
 
             LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
@@ -216,7 +202,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
 
 
-        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         points.add(location);
         Log.i("onLocationChanged","Reached onLocationChanged before drawLine()");
@@ -270,6 +256,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         if(firstCoord){
             Log.i("drawLine", "Reached drawLine if statement");
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
             mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
             prevCoordinates = currCoordinates;
             firstCoord = false;

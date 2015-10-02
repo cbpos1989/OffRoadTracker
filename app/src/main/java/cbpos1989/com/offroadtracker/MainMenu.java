@@ -1,9 +1,12 @@
 package cbpos1989.com.offroadtracker;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +58,35 @@ public class MainMenu extends AppCompatActivity {
         startActivity(mapActivity);
     }
 
+
+    public boolean onKeyDown(int keyCode,KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Do you want to quit app?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    MapsActivity.firstCoord = true;
+                    finish();
+                    System.exit(0);
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+            builder.show();
+
+
+
+            return  true;
+        }
+
+        return super.onKeyDown(keyCode,event);
+    }
 
 
 }
