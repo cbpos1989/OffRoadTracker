@@ -12,20 +12,14 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
-import android.text.InputType;
-import android.view.LayoutInflater;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -40,15 +34,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import java.io.BufferedWriter;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -66,7 +55,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Location mLocation;
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
-    private final String filename = "route.gpx";
 
     private final String filename = "route.gpx";
     private boolean startStopLoc = false;
@@ -164,6 +152,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             Log.i("drawLine","Value of commited firstCoord: " + firstCoord);
 
         }
+
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        if(startStopLoc) {
+            Toast.makeText(this, "IN STOP", Toast.LENGTH_SHORT).show();
+
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+        }
+
         super.onDestroy();
     }
 
@@ -218,12 +219,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-
-        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         points.add(location);
-        Log.i("onLocationChanged","Reached onLocationChanged before drawLine()");
+        Log.i("onLocationChanged", "Reached onLocationChanged before drawLine()");
+        Toast.makeText(this, "IN ONLOCCHANGED", Toast.LENGTH_SHORT).show();
         drawLine(location);
     }
 
@@ -269,7 +269,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void drawLine(Location location) {
         LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
 
-        //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
 
         if(firstCoord){
             Log.i("drawLine", "Reached drawLine if statement");

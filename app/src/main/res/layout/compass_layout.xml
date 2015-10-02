@@ -18,6 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvHeading"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/compass_card" />
+        android:src="@drawable/compass" />
 
 </RelativeLayout>
