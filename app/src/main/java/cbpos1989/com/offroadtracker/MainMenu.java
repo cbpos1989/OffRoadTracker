@@ -16,6 +16,7 @@ import java.util.Map;
 
 public class MainMenu extends AppCompatActivity {
     private final String filename = "route.gpx";
+    private MainMenu thisActivity = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,8 @@ public class MainMenu extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     MapsActivity.firstCoord = true;
                     finish();
+                    File routeFile = new File(getFilesDir(), filename);
+                    boolean routeDeleted = routeFile.delete();
                     System.exit(0);
                 }
             });
