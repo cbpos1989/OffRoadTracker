@@ -3,6 +3,7 @@ package cbpos1989.com.offroadtracker;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +14,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.Image;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -38,6 +40,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -47,6 +50,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
+
 
 //import com.google.android.gms.location.LocationListener;
 
@@ -61,11 +66,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Location mLocation;
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
+    private final String filename = "route.gpx";
 
     private final String filename = "route.gpx";
     private boolean startStopLoc = false;
     private  boolean firstCoord = true;
-
+    private SharedPreferences mPrefs;
     private static LatLng prevCoordinates;
 
     File routeFile;
@@ -87,6 +93,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        firstCoord = sharedPreferences.getBoolean("first_coord", true);
+        Log.i("drawLine","Value of firstCoord" + firstCoord);
 
         try {
             Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -137,15 +147,22 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             routeFile = new File(this.getFilesDir(),filename);
             routeFile.createNewFile();
             gpxFile.writePath(routeFile, "GPX_Route", points);
+            route.remove();
 
-           if(route != null) {
+            if(route != null) {
                 route.remove();
-           }
+            }
+            Log.i("WritingFile","Finished writing" + filename);
 
-
-            Toast.makeText(this,"Finished writing" + filename,Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        } finally {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("first_coord", firstCoord);
+            editor.commit();
+            Log.i("drawLine","Value of commited firstCoord: " + firstCoord);
+
         }
         super.onDestroy();
     }
@@ -174,7 +191,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
-                mMap.setOnMapLongClickListener(this);
             }
         }
     }
@@ -197,14 +213,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if(mLocation != null) {
             mLocation = location;
         }
+
         LatLng latLng = new LatLng(latitude, longitude);
 
+        mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
 
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
-       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         points.add(location);
-
+        Log.i("onLocationChanged","Reached onLocationChanged before drawLine()");
         drawLine(location);
     }
 
@@ -232,7 +251,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 .addApi(LocationServices.API)
                 .build();
 
-        //createLocationRequest();
+
     }
 
     @Override
@@ -241,23 +260,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
     }
 
     private void drawLine(Location location) {
         LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
 
         //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
-         if(firstCoord){
-             mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
-             prevCoordinates = currCoordinates;
-             firstCoord = false;
-         }
+
+        if(firstCoord){
+            Log.i("drawLine", "Reached drawLine if statement");
+            mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
+            prevCoordinates = currCoordinates;
+            firstCoord = false;
+        }
+
 
         Polyline liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
@@ -274,6 +294,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LatLng currCoordinates = latlng;
 
+
+        //Toast.makeText(this, prevCoordinates.toString() + "//// " + currCoordinates.toString(),Toast.LENGTH_SHORT).show();
+
+
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
                         .add(currCoordinates)
@@ -283,6 +307,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         route.setWidth(5.0F);
         Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
         prevCoordinates = currCoordinates;
+
 
     }
 
