@@ -53,7 +53,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
 
-    private final String filename = "route.gpx";
+    private final String FILENAME = "route.gpx";
     private boolean startStopLoc = false;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
@@ -87,24 +87,35 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             se.printStackTrace();
         }
 
-        loadcurrentRoute();
+        //Loads internal GPX File
+        routeFile = new File(this.getFilesDir(), FILENAME);
+
+        loadCurrentRoute(routeFile);
     }
+
+    private void setLastKnownLocation(){
+
+    }
+
     /**
      * Retrieves gpx file from internal app files and sends file to parser
      * an ArrayList of LatLng is returned and used in for loop to redraw polylines route.
+     * @param file takes in file of type .gpx
      */
-    private void loadcurrentRoute(){
+    private void loadCurrentRoute(File file){
         points.clear();
-        routeFile = new File(this.getFilesDir(), filename);
+
         GPXReader gpxReader = new GPXReader(this);
-        gpxReader.readPath(routeFile);
+        gpxReader.readPath(file);
 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
+
         if(polylinePoints.size() > 1){
             prevCoordinates = polylinePoints.get(0);
             mMap.addMarker(new MarkerOptions().position(polylinePoints.get(0)).title("Marker"));
-            for(int i = 0; i < polylinePoints.size();++i){
-                Log.i("Array Sizes", i + "Reader Array: " + gpxReader.getPoints().size() + " Polyline Array: " + polylinePoints.size());
+
+            //Re-draw current route.
+            for (int i = 0; i < polylinePoints.size();++i) {
                 drawLine(polylinePoints.get(i));
             }
 
@@ -119,36 +130,37 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     protected void onDestroy(){
+
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
+
+        //Load Internal GPX File
+        routeFile = new File(this.getFilesDir(), FILENAME);
+        saveCurrentRoute(routeFile);
+
+        super.onDestroy();
+    }
+
+    void saveCurrentRoute(File file){
         GPXWriter gpxFile = new GPXWriter(this);
         try {
-            routeFile = new File(this.getFilesDir(),filename);
-            routeFile.createNewFile();
-            gpxFile.writePath(routeFile, "GPX_Route", points);
+            file.createNewFile();
+            gpxFile.writePath(file, "GPX_Route", points);
 
             if(route != null) {
                 route.remove();
             }
-            Log.i("WritingFile","Finished writing" + filename);
+
+            Log.i("WritingFile","Completed writing" + file.getName());
 
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        } finally {
-            //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            //SharedPreferences.Editor editor = sharedPreferences.edit();
-            //editor.putBoolean("first_coord", firstCoord);
-            //editor.apply();
-            Log.i("drawLine","Value of commited firstCoord: " + firstCoord);
-
-            LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-
+            Log.e("WritingFile", "Not completed writing" + file.getName());
         }
-        super.onDestroy();
     }
 
     /**
