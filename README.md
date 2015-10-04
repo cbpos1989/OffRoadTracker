@@ -1,9 +1,9 @@
-# OffRoad Tracker <h1> tag
+# OffRoad Tracker <h1> 
 
-## OffRoad Tracker Plan <h2> tag
+## OffRoad Tracker Plan <h2>
 An app that will allow the users to track their hikes or bike rides. The key to the app usefulness is the fact that the user will download the map tiles to their phone before heading out so that they can navigate and track their route with the need of data or wifi. Primarily focused towards mountain hikers and off-road bikers who need maps for navigation,but not at the cost of their phone battery or data.
 
-## Implemented Features: <h2> tag
+## Implemented Features: <h2>
 *User GPS Location
   *Displays current user's position.
   *Draw polylines between current position and previous position.
@@ -20,7 +20,7 @@ An app that will allow the users to track their hikes or bike rides. The key to 
 *Custom user markers
   *User can place route markers on map to leave advice/guidance for others.
 
-## Planned Features: <h2> tag
+## Planned Features: <h2>
 *Live route tracking with lines marking the route the user has taken.
   *User can save route after hike/ride.
   *Allow user to export gpx file after ride.
