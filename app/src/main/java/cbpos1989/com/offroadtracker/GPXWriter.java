@@ -15,6 +15,7 @@ import java.util.List;
 
 
 /**
+ * Class that will take in location data and write it to gpx file format
  * Created by carlosefonseca.
  */
 
@@ -25,6 +26,13 @@ public class GPXWriter {
         this.mapsActivity = mapsActivity;
     }
 
+    /**
+     * Writes locations to gpx file format
+     *
+     * @param file file for the gpx
+     * @param n name for the file
+     * @param points List of locations to be written to gpx format
+     */
     public static void writePath(File file, String n, List<Location> points) {
 
         String header = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?><gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.15.5\" version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk>\n";

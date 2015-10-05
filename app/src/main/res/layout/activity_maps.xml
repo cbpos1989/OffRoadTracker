@@ -39,7 +39,6 @@
             android:adjustViewBounds="true"
             android:onClick="goBack"
             android:src="@drawable/compass_card"/>
-
     </fragment>
 
 

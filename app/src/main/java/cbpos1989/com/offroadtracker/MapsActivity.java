@@ -3,7 +3,6 @@ package cbpos1989.com.offroadtracker;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,7 +12,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,9 +37,10 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.File;
 import java.util.ArrayList;
 
-//import com.google.android.gms.location.LocationListener;
 
 /**
+ * Class that will display the maps activity. Track the user location and draw a path of the user's route using polylines.
+ *
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
  *
  */
@@ -54,7 +53,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Polyline route;
 
     private final String FILENAME = "route.gpx";
-    private boolean startStopLoc = false;
+    private boolean stopLoc = false;
+    private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
 
@@ -72,8 +72,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
 
-        //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        //firstCoord = sharedPreferences.getBoolean("first_coord", true);
         Log.i("drawLine","Value of firstCoord" + firstCoord);
 
         try {
@@ -156,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 route.remove();
             }
 
-            Log.i("WritingFile","Completed writing" + file.getName());
+            Log.i("WritingFile", "Completed writing" + file.getName());
 
         } catch (Exception e) {
             Log.e("WritingFile", "Not completed writing" + file.getName());
@@ -210,33 +208,29 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if(mLocation != null) {
             mLocation = location;
         }
-        LatLng latLng = new LatLng(latitude, longitude);
-
-
-
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
         points.add(location);
-        Log.i("onLocationChanged","Reached onLocationChanged before drawLine()");
         drawLine(location);
+
+        //Only move camera after certain amount of location changes
+        if(points.size() % moveCameraFactor == 0) {
+            moveCamera(new LatLng(location.getLatitude(),location.getLongitude()));
+        }
+
     }
 
-
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
+    private void moveCamera(LatLng latLng){
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-    }
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -244,36 +238,31 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-
-        //createLocationRequest();
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-    }
+    public void onConnected(Bundle bundle) {}
 
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
+    public void onConnectionSuspended(int i) {}
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
+    public void onConnectionFailed(ConnectionResult connectionResult) {}
 
-    }
-
+    /**
+     * Used for drawing the live route the the user will see updating as thier reamin on the MapsActivity
+     * First checks if it is the first coordinates that are recieved and places a starting marker to indicate this
+     * @param location
+     */
     private void drawLine(Location location) {
         LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
 
-
         if(firstCoord){
-            Log.i("drawLine", "Reached drawLine if statement");
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
             mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
             prevCoordinates = currCoordinates;
             firstCoord = false;
         }
-
 
         Polyline liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
@@ -286,6 +275,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         prevCoordinates = currCoordinates;
     }
 
+    /**
+     * Used for redrawing the users route when they navigate back to the MapsActivity from another Activity
+     * @param latlng
+     */
     private void drawLine(LatLng latlng) {
 
         LatLng currCoordinates = latlng;
@@ -307,8 +300,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        if(startStopLoc){
-            Toast.makeText(this, "IN STOP", Toast.LENGTH_SHORT).show();
+        if(stopLoc){
+           Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
 
             try {
                 locationManager.removeUpdates(this);
@@ -318,9 +311,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
             button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
 
-            startStopLoc = !startStopLoc;
+            stopLoc = !stopLoc;
         } else{
-            Toast.makeText(this, "IN START", Toast.LENGTH_SHORT).show();
+           Toast.makeText(this, "Tracking Route", Toast.LENGTH_SHORT).show();
 
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
@@ -330,37 +323,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
             button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
 
-            startStopLoc = !startStopLoc;
+            stopLoc = !stopLoc;
         }
     }
 
     @Override
     public void onMapLongClick(final LatLng latLng) {
-//        mMap.addMarker(new MarkerOptions().position(latLng).title(
-//                latLng.toString()));
-
-//        Toast.makeText(getApplicationContext(),
-//                "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
-//                .show();
-
-        //---------------CRAZY CODE BELOW THIS POINT-----------------------
 
         // Init the dialog object
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //builder.setTitle("Enter description");
 
         // Set up the input
-
         LayoutInflater factory = LayoutInflater.from(getApplicationContext());
 
         final View v = factory.inflate(R.layout.dialog_layout, null);
         final EditText input = (EditText) v.findViewById(R.id.dialog_edit_text);
         final RadioGroup radioGroup = (RadioGroup) v.findViewById(R.id.radio_group_dialog);
-        //input.setInputType(InputType.TYPE_CLASS_TEXT);
 
         builder.setView(v);
-
-        //builder.set
 
         // Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -385,11 +365,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                         break;
                 }
 
-
-                //Bitmap bitmap = drawableToBitmap(checkedButton.getBackground());
-
-                //checkedButton.getButtonDrawable()
-
                 mMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(description)
@@ -404,28 +379,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         });
 
         builder.show();
-    }
-
-    public static Bitmap drawableToBitmap (Drawable drawable) {
-        Bitmap bitmap = null;
-
-        if (drawable instanceof BitmapDrawable) {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            if(bitmapDrawable.getBitmap() != null) {
-                return bitmapDrawable.getBitmap();
-            }
-        }
-
-        if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
-            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
-        } else {
-            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        }
-
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
     }
 
     public void goBack(View v){
