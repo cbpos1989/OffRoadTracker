@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Class that reads a GPX file and parses the Latitude and Longtiude into an ArrayList of LatLng
+ *
  * Created by Colm O'Sullivan on 30/09/2015.
  */
 public class GPXReader {
@@ -88,6 +90,9 @@ public class GPXReader {
         }
     }
 
+    private void parseFile(){
+
+    }
 
     public List<LatLng> getPoints(){
         return points;

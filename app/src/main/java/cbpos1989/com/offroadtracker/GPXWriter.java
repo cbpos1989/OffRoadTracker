@@ -58,8 +58,7 @@ public class GPXWriter {
             Log.i(TAG, "Saved " + points.size() + " points.");
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            Toast.makeText(mapsActivity.getApplicationContext(),"File not found",Toast.LENGTH_SHORT);
+            //Toast.makeText(mapsActivity.getApplicationContext(),"File not found",Toast.LENGTH_SHORT);
             Log.e(TAG, "Error Writting Path",e);
         }
     }
