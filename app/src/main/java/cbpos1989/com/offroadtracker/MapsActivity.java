@@ -89,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         routeFile = new File(this.getFilesDir(), FILENAME);
 
         loadCurrentRoute(routeFile);
+
     }
 
     private void setLastKnownLocation(){

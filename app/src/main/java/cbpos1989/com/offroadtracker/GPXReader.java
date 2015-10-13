@@ -48,35 +48,7 @@ public class GPXReader {
                 Log.i("Split Output", str);
             }
 
-            for(String str: lines) {
-                if(str.contains("<trkpt") || str.contains("<time>")){
-                    continue;
-                } else if (str.contains("lat")) {
-                    int index = str.indexOf('\u0022');
-
-                    try {
-                        str = str.substring(index + 1, str.length() - 1);
-                        latitude = Double.parseDouble(str);
-                        Log.i("LatitudeParsed", "Latitude: " + latitude);
-                    } catch (NumberFormatException nfe) {
-                        nfe.printStackTrace();
-                    }
-                } else if(str.contains("lon")){
-                    int index = str.indexOf('\u0022');
-                    try {
-                        str = str.substring(index + 1, str.length() - 2);
-                        longitude = Double.parseDouble(str);
-                        Log.i("LongitudeParsed", "Longitude: " + longitude);
-                    } catch (NumberFormatException nfe) {
-                        nfe.printStackTrace();
-                    }
-
-                    points.add(new LatLng(latitude, longitude));
-                }
-
-
-            }
-
+            parseFile(lines);
 
             for(LatLng lt: getPoints()){
                 Log.i("GPX Output", lt.toString());
@@ -90,8 +62,33 @@ public class GPXReader {
         }
     }
 
-    private void parseFile(){
+    private void parseFile(ArrayList<String> lines) {
+        for (String str : lines) {
+            if (str.contains("<trkpt") || str.contains("<time>")) {
+                continue;
+            } else if (str.contains("lat")) {
+                int index = str.indexOf('\u0022');
 
+                try {
+                    str = str.substring(index + 1, str.length() - 1);
+                    latitude = Double.parseDouble(str);
+                    Log.i("LatitudeParsed", "Latitude: " + latitude);
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
+            } else if (str.contains("lon")) {
+                int index = str.indexOf('\u0022');
+                try {
+                    str = str.substring(index + 1, str.length() - 2);
+                    longitude = Double.parseDouble(str);
+                    Log.i("LongitudeParsed", "Longitude: " + longitude);
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
+
+                points.add(new LatLng(latitude, longitude));
+            }
+        }
     }
 
     public List<LatLng> getPoints(){
