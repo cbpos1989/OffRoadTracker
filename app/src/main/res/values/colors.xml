@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="primary_background" type="color">#cde3a5</item>
+    <item name="dark_primary_background" type="color">#23280a</item>
+
+
+    <integer-array name="app_colours">
+        <item>@color/primary_background</item>
+        <item>@color/dark_primary_background</item>
+    </integer-array>
+</resources>

@@ -1,8 +1,18 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Base.V7.Theme.AppCompat">
+    <style name="AppTheme" parent="Base.V7.Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="MainMenu" parent="Base.V7.Theme.AppCompat.Light">
+        <item name="android:background">@color/primary_background</item>
+        <item name="android:textAppearance">@style/MainMenuText</item>
+    </style>
+
+    <style name="MainMenuText">
+        <item name="android:textSize">36dp</item>
+        <item name="android:textColor">@color/dark_primary_background</item>
     </style>
 
 </resources>
