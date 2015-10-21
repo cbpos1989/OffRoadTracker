@@ -8,16 +8,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="40dp"
-        android:layout_marginTop="20dp"
-        android:text="Heading: 0.0" />
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="Heading: 0.0"
+        android:textAppearance="@style/MainMenuText"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tvHeading"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/compass_face"
+        android:id="@+id/imageView" />
 
     <ImageView
         android:id="@+id/imageViewCompass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvHeading"
+        android:src="@drawable/compass_pointer"
+        android:layout_alignTop="@+id/imageView"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/compass_card" />
+        android:layout_marginTop="158dp" />
+
+
 
 </RelativeLayout>

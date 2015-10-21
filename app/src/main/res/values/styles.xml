@@ -12,7 +12,15 @@
 
     <style name="MainMenuText">
         <item name="android:textSize">36dp</item>
-        <item name="android:textColor">@color/dark_primary_background</item>
+        <item name="android:textColor">@color/dark_secondary_background</item>
+    </style>
+
+    <style name="MainButtons" parent="Base.V7.Theme.AppCompat.Light">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:textSize">24dp</item>
+        <item name="android:textColor">@color/primary_background</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
     </style>
 
 </resources>
