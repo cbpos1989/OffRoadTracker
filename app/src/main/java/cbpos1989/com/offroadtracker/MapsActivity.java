@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +37,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -59,6 +62,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private static LatLng prevCoordinates;
 
     File routeFile;
+
+    private Timer timer = new Timer();
 
 
     @Override
@@ -200,6 +205,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void setUpMap() {
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
     }
+
+    //Method to demo app without gps signal
+//    public synchronized void noGPSLocation(View view){
+//        final double[][] mockLocations = {{53.1886100,-6.2280610},{53.1884770,-6.2280640},{53.1880730,-6.2286810},{53.1876860,-6.2293080},{53.1872790,-6.2299980},{53.1870960,-6.2301030}};
+//        prevCoordinates = new LatLng(53.1886090,-6.2280710);
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
+//        mMap.addMarker(new MarkerOptions().position(prevCoordinates).title("Marker"));
+//    }
 
     @Override
     public void onLocationChanged(Location location) {

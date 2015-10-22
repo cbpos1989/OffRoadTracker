@@ -17,8 +17,8 @@
         android:gravity="center">
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
             android:layout_gravity="right|bottom"
             android:padding="10dp"
             android:layout_marginTop="20dp"
@@ -39,6 +39,19 @@
             android:adjustViewBounds="true"
             android:onClick="goBack"
             android:src="@drawable/compass_pointer"/>
+
+        <!--<ImageButton-->
+            <!--android:layout_width="75dp"-->
+            <!--android:layout_height="75dp"-->
+            <!--android:layout_gravity="center|bottom"-->
+            <!--android:padding="10dp"-->
+            <!--android:scaleType="fitCenter"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:id="@+id/demoBtn"-->
+            <!--android:paddingRight="10dp"-->
+            <!--android:adjustViewBounds="true"-->
+            <!--android:onClick="noGPSLocation"-->
+            <!--android:src="@drawable/ic_launcher"/>-->
     </fragment>
 
 
