@@ -33,12 +33,6 @@ public class Compass extends Fragment implements SensorEventListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.compass_layout);
-
-        //
-
-        // TextView that will tell the user what degree is he heading
-
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -67,7 +61,7 @@ public class Compass extends Fragment implements SensorEventListener {
         // get the angle around the z-axis rotated
         float degree = Math.round(event.values[0]);
 
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
+        tvHeading.setText("Heading: " + Float.toString(degree) + "°");
 
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(

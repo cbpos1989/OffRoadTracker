@@ -1,11 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Base.V7.Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="MainMenu" parent="Base.V7.Theme.AppCompat.Light">
+    <style name="MainMenu" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@color/primary_background</item>
         <item name="android:textAppearance">@style/MainMenuText</item>
     </style>
