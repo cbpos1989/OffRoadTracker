@@ -44,7 +44,7 @@ public class GPXWriter {
             segments += "<trkpt lat=\"" + l.getLatitude() + "\" lon=\"" + l.getLongitude() + "\">\n<ele>0.0</ele>\n<time>" + df.format(new Date(l.getTime())) + "</time>\n</trkpt>\n";
         }
 
-        String footer = "</trkseg></trk></gpx>";
+        String footer = "</trkseg>\n</trk>\n</gpx>";
 
         try {
             FileWriter writer = new FileWriter(file, true);

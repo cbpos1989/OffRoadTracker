@@ -64,7 +64,7 @@ public class GPXReader {
 
     private void parseFile(ArrayList<String> lines) {
         for (String str : lines) {
-            if (str.contains("<trkpt") || str.contains("<time>")) {
+            if (str.contains("<trkpt")) {
                 continue;
             } else if (str.contains("lat")) {
                 int index = str.indexOf('\u0022');
