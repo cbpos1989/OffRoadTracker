@@ -23,10 +23,9 @@ public class GPXReader {
     private List<LatLng> points = new ArrayList<LatLng>();
     private double latitude;
     private double longitude;
-    private MapsActivity mapsActivity;
 
-    public GPXReader(MapsActivity mapsActivity){
-        this.mapsActivity = mapsActivity;
+    public GPXReader(){
+
     }
 
     public void readPath(File file){

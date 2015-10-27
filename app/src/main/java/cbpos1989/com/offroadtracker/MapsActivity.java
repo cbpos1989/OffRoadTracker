@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -91,14 +92,52 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
         //Loads internal GPX File
-        routeFile = new File(this.getFilesDir(), FILENAME);
+        // routeFile = new File(this.getFilesDir(), FILENAME);
 
-        loadCurrentRoute(routeFile);
+        //loadCurrentRoute(routeFile);
+
+        //Loads internal GPX File
+        routeFile = new File("C:\\Users\\User1\\AndroidStudioProjects\\OffRoadTracker\\app\\src\\main\\res\\raw\\Slieve_Bloom_Mountains_MTB_Trail.gpx");
+
+        loadPreviousRoute(routeFile);
 
     }
 
     private void setLastKnownLocation(){
 
+    }
+
+    private void loadPreviousRoute(File file){
+        GPXReader gpxReader = new GPXReader();
+        gpxReader.readPath(file);
+
+        final ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
+
+        for(LatLng latLng: polylinePoints){
+            Log.i("Points", latLng.toString());
+        }
+
+        if(polylinePoints.size() > 1){
+            prevCoordinates = polylinePoints.get(0);
+            mMap.addMarker(new MarkerOptions().position(polylinePoints.get(0)).title("Marker"));
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //Re-draw current route.
+                    for (int i = 0; i < polylinePoints.size();++i) {
+                        drawLine(polylinePoints.get(i));
+                    }
+                }
+            });
+
+            thread.start();
+            try {
+                thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -109,7 +148,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void loadCurrentRoute(File file){
         points.clear();
 
-        GPXReader gpxReader = new GPXReader(this);
+        GPXReader gpxReader = new GPXReader();
         gpxReader.readPath(file);
 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
