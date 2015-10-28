@@ -23,6 +23,7 @@ public class GPXReader {
     private List<LatLng> points = new ArrayList<LatLng>();
     private double latitude;
     private double longitude;
+    private final String TAG = "GPXReader";
 
     public GPXReader(){
 
@@ -38,8 +39,10 @@ public class GPXReader {
             while ((line = br.readLine()) != null) {
                 if(line.contains("<trkpt")) {
                     output += line;
+
                 }
             }
+            Log.i(TAG,"NUll");
             br.close();
 
             for (String str: output.split(" ")){
@@ -55,9 +58,9 @@ public class GPXReader {
 
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG,e.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.toString());
         }
     }
 

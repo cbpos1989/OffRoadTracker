@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -92,14 +93,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
         //Loads internal GPX File
-        // routeFile = new File(this.getFilesDir(), FILENAME);
+        routeFile = new File(this.getFilesDir(), FILENAME);
 
-        //loadCurrentRoute(routeFile);
+        loadCurrentRoute(routeFile);
 
-        //Loads internal GPX File
-        routeFile = new File("C:\\Users\\User1\\AndroidStudioProjects\\OffRoadTracker\\app\\src\\main\\res\\raw\\Slieve_Bloom_Mountains_MTB_Trail.gpx");
-
-        loadPreviousRoute(routeFile);
+        //Loads external GPX File
+        //InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slieve_bloom_mountains_mtb_trail);
+        //loadPreviousRoute(XmlFileInputStream);
 
     }
 
@@ -107,9 +107,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     }
 
-    private void loadPreviousRoute(File file){
+    private void loadPreviousRoute(InputStream inputStream){
+
         GPXReader gpxReader = new GPXReader();
-        gpxReader.readPath(file);
+        //gpxReader.readPath(inputStream);
 
         final ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
 
@@ -117,26 +118,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             Log.i("Points", latLng.toString());
         }
 
-        if(polylinePoints.size() > 1){
+        if(polylinePoints.size() > 1) {
             prevCoordinates = polylinePoints.get(0);
             mMap.addMarker(new MarkerOptions().position(polylinePoints.get(0)).title("Marker"));
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    //Re-draw current route.
-                    for (int i = 0; i < polylinePoints.size();++i) {
-                        drawLine(polylinePoints.get(i));
-                    }
-                }
-            });
-
-            thread.start();
-            try {
-                thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -332,7 +316,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * Used for redrawing the users route when they navigate back to the MapsActivity from another Activity
      * @param latlng
      */
-    private void drawLine(LatLng latlng) {
+    private synchronized void drawLine(LatLng latlng)  {
 
         LatLng currCoordinates = latlng;
 
