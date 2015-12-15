@@ -38,11 +38,10 @@ public class GPXReader {
 
             while ((line = br.readLine()) != null) {
                 if(line.contains("<trkpt")) {
-                    output += line;
-
+                    output += line + " ";
+                    Log.i("Output", output);
                 }
             }
-            Log.i(TAG,"NUll");
             br.close();
 
             for (String str: output.split(" ")){

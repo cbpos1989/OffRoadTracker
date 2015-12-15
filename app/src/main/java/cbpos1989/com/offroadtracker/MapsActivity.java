@@ -39,8 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 
 /**
@@ -50,6 +49,7 @@ import java.util.TimerTask;
  *
  */
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener {
+    private static final String TAG = "MapsActivity";
 
     protected GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -65,7 +65,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     File routeFile;
 
-    private Timer timer = new Timer();
 
 
     @Override
@@ -103,10 +102,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     }
 
-    private void setLastKnownLocation(){
-
-    }
-
     private void loadPreviousRoute(InputStream inputStream){
 
         GPXReader gpxReader = new GPXReader();
@@ -137,6 +132,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
 
+        Log.d(TAG, "PolylinePoints: " + polylinePoints.size());
         if(polylinePoints.size() > 1){
             prevCoordinates = polylinePoints.get(0);
             mMap.addMarker(new MarkerOptions().position(polylinePoints.get(0)).title("Marker"));
@@ -316,7 +312,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * Used for redrawing the users route when they navigate back to the MapsActivity from another Activity
      * @param latlng
      */
-    private synchronized void drawLine(LatLng latlng)  {
+    private void drawLine(LatLng latlng)  {
 
         LatLng currCoordinates = latlng;
 
