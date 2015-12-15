@@ -1,0 +1,34 @@
+<gpx creator="stravaGPX" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+ <metadata>
+  <time>2015-10-25T09:34:13Z</time>
+ </metadata>
+ <trk>
+  <name>slieve bloom mountains mtb trail</name>
+  <trkseg>
+   <trkpt lat="53.1472690" lon="-7.5263990">
+    <ele>116.2</ele>
+    <time>2015-10-25T09:34:13Z</time>
+   </trkpt>
+   <trkpt lat="53.1472840" lon="-7.5264020">
+    <ele>116.2</ele>
+    <time>2015-10-25T09:34:15Z</time>
+   </trkpt>
+   <trkpt lat="53.1474490" lon="-7.5263110">
+    <ele>115.7</ele>
+    <time>2015-10-25T09:34:20Z</time>
+   </trkpt>
+   <trkpt lat="53.1479430" lon="-7.5258110">
+    <ele>114.0</ele>
+    <time>2015-10-25T09:34:29Z</time>
+   </trkpt>
+   <trkpt lat="53.1484610" lon="-7.5253600">
+    <ele>114.0</ele>
+    <time>2015-10-25T09:34:38Z</time>
+   </trkpt>
+   <trkpt lat="53.1486810" lon="-7.5252640">
+    <ele>113.8</ele>
+    <time>2015-10-25T09:34:43Z</time>
+   </trkpt>
+  </trkseg>
+ </trk>
+</gpx>

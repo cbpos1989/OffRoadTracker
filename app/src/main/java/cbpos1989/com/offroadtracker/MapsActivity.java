@@ -11,8 +11,10 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,10 +38,12 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-
+import java.util.List;
 
 
 /**
@@ -92,29 +96,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //Loads internal GPX File
         routeFile = new File(this.getFilesDir(), FILENAME);
 
-        loadCurrentRoute(routeFile);
+        //loadCurrentRoute(routeFile);
 
         //Loads external GPX File
-        //InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slieve_bloom_mountains_mtb_trail);
-        //loadPreviousRoute(XmlFileInputStream);
+        InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slieve_bloom_mountains_mtb_trail);
+        loadPreviousRoute(XmlFileInputStream);
 
     }
 
     private void loadPreviousRoute(InputStream inputStream){
-
-        GPXReader gpxReader = new GPXReader();
+        new GPXReader().execute(inputStream,this);
         //gpxReader.readPath(inputStream);
-
-        final ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
-
-        for(LatLng latLng: polylinePoints){
-            Log.i("Points", latLng.toString());
-        }
-
-        if(polylinePoints.size() > 1) {
-            prevCoordinates = polylinePoints.get(0);
-            mMap.addMarker(new MarkerOptions().position(polylinePoints.get(0)).title("Marker"));
-        }
     }
 
     /**
@@ -310,10 +302,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * Used for redrawing the users route when they navigate back to the MapsActivity from another Activity
      * @param latlng
      */
-    private void drawLine(LatLng latlng)  {
+    void drawLine(LatLng latlng)  {
 
         LatLng currCoordinates = latlng;
 
+        if(firstCoord){
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
+            mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
+            prevCoordinates = currCoordinates;
+            firstCoord = false;
+        }
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
                         .add(prevCoordinates)
                         .add(currCoordinates)
@@ -321,7 +322,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         route.setColor(Color.RED);
         route.setWidth(5.0F);
-        Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
+        //Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
         prevCoordinates = currCoordinates;
 
     }
@@ -416,3 +417,5 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         onBackPressed();
     }
 }
+
+
