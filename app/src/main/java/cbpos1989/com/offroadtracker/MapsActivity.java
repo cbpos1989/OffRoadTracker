@@ -94,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //Loads internal GPX File
         routeFile = new File(this.getFilesDir(), FILENAME);
 
-        loadCurrentRoute(routeFile);
+        //loadCurrentRoute(routeFile);
 
         //Loads external GPX File
         //InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slieve_bloom_mountains_mtb_trail);

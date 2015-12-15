@@ -1,1 +1,8 @@
+.gradle
+/local.properties
+/.idea
+.DS_Store
 /build
+/captures
+*.iml
+google_maps_api.xml
