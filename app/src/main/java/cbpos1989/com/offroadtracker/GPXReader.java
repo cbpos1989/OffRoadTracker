@@ -2,6 +2,7 @@ package cbpos1989.com.offroadtracker;
 
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
     private double longitude;
     private final String TAG = "GPXReader";
     MapsActivity mMap;
+    int count;
 
     public GPXReader(){}
 
@@ -45,16 +47,31 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
         return points;
     }
 
-
-
     @Override
     protected void onProgressUpdate(Integer... integer) {
-
         Log.i(TAG,"Points: " + points.size());
+        int i = 0;
 
-        for(LatLng latLng: points) {
-            mMap.drawLine(latLng);
-        }
+        timedOutput(1000);
+    }
+
+    /**
+     * Method to delay the drawing of polylines so as not the slow down the UI thread.
+     * @param time
+     */
+    public void timedOutput(final int time){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMap.drawLine(points.get(count));
+                Log.i("TimeTest", "2 Seconds Passed " + ++count);
+
+                if(count <= points.size() -1){
+                    timedOutput(time);
+                }
+            }
+        }, time);
     }
 
     /**
