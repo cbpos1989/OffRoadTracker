@@ -3,6 +3,7 @@ package cbpos1989.com.offroadtracker;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -54,6 +55,7 @@ import java.util.List;
  */
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener {
     private static final String TAG = "MapsActivity";
+    private final String USER_PREFERENCES = "userOptions";
 
     protected GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -74,13 +76,16 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        String userChoice = sharedpreferences.getString(USER_PREFERENCES, null);
+
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
 
-        Log.i("drawLine","Value of firstCoord" + firstCoord);
+       //Log.i("drawLine","Value of firstCoord" + firstCoord);
 
         try {
             Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -93,20 +98,21 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             se.printStackTrace();
         }
 
-        //Loads internal GPX File
-        routeFile = new File(this.getFilesDir(), FILENAME);
+        if (userChoice.equals("Live")) {
+            //Loads internal GPX File
+            routeFile = new File(this.getFilesDir(), FILENAME);
+            loadCurrentRoute(routeFile);
 
-        //loadCurrentRoute(routeFile);
-
-        //Loads external GPX File
-        InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slieve_bloom_mountains_mtb_trail);
-        loadPreviousRoute(XmlFileInputStream);
+        } else if(userChoice.equals("Load")) {
+            //Loads external GPX File
+            InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
+            loadPreviousRoute(XmlFileInputStream);
+        }
 
     }
 
     private void loadPreviousRoute(InputStream inputStream){
         new GPXReader().execute(inputStream,this);
-        //gpxReader.readPath(inputStream);
     }
 
     /**

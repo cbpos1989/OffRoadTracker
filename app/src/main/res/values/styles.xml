@@ -21,6 +21,22 @@
         <item name="android:textColor">@color/primary_background</item>
         <item name="android:paddingLeft">12dp</item>
         <item name="android:paddingRight">12dp</item>
+        <item name="android:layout_marginLeft">12dp</item>
+        <item name="android:layout_marginRight">12dp</item>
+    </style>
+
+    <style name="Login_Field" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">#000000</item>
+        <item name="android:background">#FFFFFF</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:inputType">text</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
     </style>
 
 </resources>

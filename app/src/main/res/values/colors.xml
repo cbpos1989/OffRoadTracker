@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="primary_background" type="color">#ADD16B</item>
-    <item name="dark_primary_background" type="color">#23280a</item>
-    <item name="secondary_background" type="color">#677d40</item>
-    <item name="dark_secondary_background" type="color">#45532A</item>
+    <item name="primary_background" type="color">#009688</item>
+    <item name="dark_primary_background" type="color">#004D40</item>
+    <item name="secondary_background" type="color">#E0F2F1</item>
+    <item name="dark_secondary_background" type="color">#00695C</item>
 
 
 

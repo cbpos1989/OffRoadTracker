@@ -50,8 +50,6 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
     @Override
     protected void onProgressUpdate(Integer... integer) {
         Log.i(TAG,"Points: " + points.size());
-        int i = 0;
-
         timedOutput(1000);
     }
 
@@ -64,8 +62,8 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mMap.drawLine(points.get(count));
-                Log.i("TimeTest", "2 Seconds Passed " + ++count);
+                mMap.drawLine(points.get(count++));
+               //Log.i("TimeTest", "2 Seconds Passed " + count);
 
                 if(count <= points.size() -1){
                     timedOutput(time);

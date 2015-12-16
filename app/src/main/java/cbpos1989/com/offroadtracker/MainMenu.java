@@ -1,8 +1,10 @@
 package cbpos1989.com.offroadtracker;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,13 +18,16 @@ import java.util.Map;
 
 public class MainMenu extends AppCompatActivity {
     private final String filename = "route.gpx";
+    private final String USER_PREFERENCES = "userOptions";
     private MainMenu thisActivity = this;
+    SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
+        sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -56,8 +61,23 @@ public class MainMenu extends AppCompatActivity {
     }
 
     public void onClickMapButton(View view){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(USER_PREFERENCES,"Live");
+        editor.commit();
+
         Intent mapActivity = new Intent(this, MapsActivity.class);
         startActivity(mapActivity);
+
+    }
+
+    public void onClickLoadRoute(View view){
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(USER_PREFERENCES,"Load");
+        editor.commit();
+
+        Intent mapActivity = new Intent(this, MapsActivity.class);
+        startActivity(mapActivity);
+
     }
 
 
