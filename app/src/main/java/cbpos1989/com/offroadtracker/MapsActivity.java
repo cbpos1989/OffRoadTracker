@@ -72,7 +72,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     private final String FILENAME = "route.gpx";
     private boolean stopLoc = false;
-    private boolean routeFinished = false;
+    private boolean routeFinished = true;
     private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
@@ -100,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
 
         if (userChoice.equals("Live")) {
+            routeFinished = false;
             Log.i(TAG,"FirstCoord: " + firstCoord);
             //Move camera and set coordinates to last known position
             try {
@@ -181,8 +182,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             saveCurrentRoute(routeFile);
         }
 
+        if(routeFinished) {
+            firstCoord = true;
+        }
+
         gpxReader.cancel(true);
-        //gpxReader.resetPoints();
         super.onDestroy();
     }
 
