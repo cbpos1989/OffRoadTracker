@@ -27,19 +27,19 @@
         <!--<ImageButton-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
-        <!--android:src="@drawable/selector_test"-->
+        <!--android:src="@drawable/navigation_selector"-->
         <!--/>-->
 
         <!--<ImageButton-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
-        <!--android:src="@drawable/selector_test"-->
+        <!--android:src="@drawable/navigation_selector"-->
         <!--/>-->
 
         <!--<ImageButton-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
-        <!--android:src="@drawable/selector_test"/>-->
+        <!--android:src="@drawable/navigation_selector"/>-->
 
         <RadioGroup
             android:id="@+id/radio_group_dialog"
@@ -52,7 +52,7 @@
             <!--<ImageView-->
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/selector_test" />-->
+                <!--android:src="@drawable/navigation_selector" />-->
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -60,7 +60,7 @@
                 android:text="@string/interest"
                 android:id="@id/interest_radio_button"
                 android:textColor="#FFFFFF"
-                android:drawableRight="@drawable/ic_explore_white_48dp"
+                android:drawableRight="@drawable/ic_explore_black_24dp"
                 android:background="@drawable/layout_background"
                 android:layout_weight="1" />
 
@@ -68,7 +68,7 @@
             <!--<ImageView-->
                 <!--android:layout_width="wrap_content"-->
                 <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/selector_test" />-->
+                <!--android:src="@drawable/navigation_selector" />-->
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -76,7 +76,7 @@
                 android:text="@string/danger"
                 android:id="@+id/danger_radio_button"
                 android:textColor="#FFFFFF"
-                android:drawableRight="@drawable/ic_close_white_48dp"
+                android:drawableRight="@drawable/ic_close_black_24dp"
                 android:background="@drawable/layout_background"
                 android:maxLines="1"
                 android:layout_weight="1" />

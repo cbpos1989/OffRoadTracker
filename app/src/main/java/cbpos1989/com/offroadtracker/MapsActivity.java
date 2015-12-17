@@ -1,6 +1,8 @@
 package cbpos1989.com.offroadtracker;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -13,6 +15,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -20,6 +23,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -37,6 +41,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.TileOverlay;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,15 +61,18 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener {
     private static final String TAG = "MapsActivity";
     private final String USER_PREFERENCES = "userOptions";
+    private String userChoice;
 
     protected GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Location mLocation;
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
+    private GPXReader gpxReader;
 
     private final String FILENAME = "route.gpx";
     private boolean stopLoc = false;
+    private boolean routeFinished = false;
     private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
@@ -76,34 +84,42 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        //Get user choice to either display demo route or live route
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
-        String userChoice = sharedpreferences.getString(USER_PREFERENCES, null);
+        userChoice = sharedpreferences.getString(USER_PREFERENCES, null);
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
+        //Setting up Google Map
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
+        gpxReader = new GPXReader();
 
-        try {
-            Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            if (lastKnownLocationGPS != null) {
-                prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
-            }
-        }catch(SecurityException se){
-            se.printStackTrace();
-        }
 
         if (userChoice.equals("Live")) {
+            Log.i(TAG,"FirstCoord: " + firstCoord);
+            //Move camera and set coordinates to last known position
+            try {
+                Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                if (lastKnownLocationGPS != null) {
+                    prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
+                }
+            }catch(SecurityException se){
+                se.printStackTrace();
+            }
+
             //Loads internal GPX File
             routeFile = new File(this.getFilesDir(), FILENAME);
             loadCurrentRoute(routeFile);
 
         } else if(userChoice.equals("Load")) {
+            firstCoord = true;
+            Log.i(TAG,"FirstCooord: " + firstCoord);
             //Loads external GPX File
             InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
             loadPreviousRoute(XmlFileInputStream);
@@ -112,7 +128,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void loadPreviousRoute(InputStream inputStream){
-        new GPXReader().execute(inputStream,this);
+        points.clear();
+
+        gpxReader.execute(inputStream, this);
     }
 
     /**
@@ -123,7 +141,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private void loadCurrentRoute(File file){
         points.clear();
 
-        GPXReader gpxReader = new GPXReader();
         gpxReader.readPath(file);
 
         ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
@@ -159,9 +176,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
         //Load Internal GPX File
-        routeFile = new File(this.getFilesDir(), FILENAME);
-        saveCurrentRoute(routeFile);
+        if (userChoice.contains("Live") && !routeFinished) {
+            routeFile = new File(this.getFilesDir(), FILENAME);
+            saveCurrentRoute(routeFile);
+        }
 
+        gpxReader.cancel(true);
+        //gpxReader.resetPoints();
         super.onDestroy();
     }
 
@@ -339,30 +360,67 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         if(stopLoc){
-           Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
-
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-
-            button.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
-
-            stopLoc = !stopLoc;
+           pauseRoute(locationManager);
         } else{
-           Toast.makeText(this, "Tracking Route", Toast.LENGTH_SHORT).show();
+           trackRoute(locationManager);
 
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-
-            button.setImageResource(R.drawable.ic_pause_circle_outline_white_48dp);
-
-            stopLoc = !stopLoc;
+            button.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showDialog();
+                    return false;
+                }
+            });
         }
+    }
+
+    private void pauseRoute(LocationManager locationManager){
+        Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
+        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
+
+        button.setImageResource(R.drawable.ic_navigation_red_48dp);
+
+        stopLoc = !stopLoc;
+    }
+
+    private void trackRoute(LocationManager locationManager){
+
+        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
+
+        button.setImageResource(R.drawable.ic_pause_red_48dp);
+
+        stopLoc = !stopLoc;
+    }
+
+    private void stopRoute(){
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
+
+        MapsActivity.firstCoord = true;
+        File routeFile = new File(getFilesDir(), FILENAME);
+        routeFile.delete();
+        routeFinished = true;
+
+        Toast.makeText(this, "Route Finished" + routeFinished, Toast.LENGTH_SHORT).show();
+
+        onBackPressed();
     }
 
     @Override
@@ -393,9 +451,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
                 RadioButton checkedButton = (RadioButton) v.findViewById(radioGroup.getCheckedRadioButtonId());
 
-                switch (checkedButton.getId()){
+                switch (checkedButton.getId()) {
                     case R.id.interest_radio_button:
-                        bitmap = R.drawable.ic_explore_white_48dp;
+                        bitmap = R.drawable.ic_explore_red_48dp;
                         break;
 
                     case R.id.danger_radio_button:
@@ -422,6 +480,53 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void goBack(View v){
         onBackPressed();
     }
+
+    /**
+     * Dialog that will allow the user to stop tracking there route.
+     */
+    public static class StopTrackingDialogFragment extends DialogFragment {
+
+        public static StopTrackingDialogFragment newInstance() {
+            StopTrackingDialogFragment frag = new StopTrackingDialogFragment();
+            return frag;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.stop_tracking_message)
+                    .setPositiveButton(R.string.positive_button_message, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ((MapsActivity)getActivity()).doPositiveClick();
+                        }
+                    })
+                    .setNegativeButton(R.string.negative_button_message, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ((MapsActivity)getActivity()).doNegativeClick();
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
+    }
+
+    void showDialog() {
+        DialogFragment newFragment = StopTrackingDialogFragment.newInstance();
+        newFragment.show(getFragmentManager(), "dialog");
+    }
+
+    public void doPositiveClick() {
+        stopRoute();
+        //Log.i("FragmentAlertDialog", "Positive click!");
+    }
+
+    public void doNegativeClick() {
+        // Do stuff here.
+        Log.i("FragmentAlertDialog", "Negative click!");
+    }
 }
+
+
 
 

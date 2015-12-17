@@ -14,10 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.io.File;
-import java.util.Map;
 
 public class MainMenu extends AppCompatActivity {
-    private final String filename = "route.gpx";
+    private final String TAG = "MainMenu";
+    private final String FILENAME = "route.gpx";
     private final String USER_PREFERENCES = "userOptions";
     private MainMenu thisActivity = this;
     SharedPreferences sharedpreferences;
@@ -26,13 +26,13 @@ public class MainMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-
+        Log.i(TAG, "In Main Menu");
         sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     @Override
     protected void onDestroy(){
-        File routeFile = new File(this.getFilesDir(), filename);
+        File routeFile = new File(this.getFilesDir(), FILENAME);
         boolean routeDeleted = routeFile.delete();
         Log.i("Deleted", "Route Deleted");
         super.onDestroy();
@@ -90,7 +90,7 @@ public class MainMenu extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     MapsActivity.firstCoord = true;
                     finish();
-                    File routeFile = new File(getFilesDir(), filename);
+                    File routeFile = new File(getFilesDir(), FILENAME);
                     boolean routeDeleted = routeFile.delete();
                     System.exit(0);
                 }

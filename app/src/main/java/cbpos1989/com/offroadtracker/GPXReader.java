@@ -1,14 +1,9 @@
 package cbpos1989.com.offroadtracker;
 
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class that reads a GPX file and parses the Latitude and Longtiude into an ArrayList of LatLng
+ * Class that reads a GPX file and parses the Latitude and Longitude into an ArrayList of LatLng
  *
  * Created by Colm O'Sullivan on 30/09/2015.
  */
@@ -62,11 +57,13 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mMap.drawLine(points.get(count++));
-               //Log.i("TimeTest", "2 Seconds Passed " + count);
+                if(!isCancelled()) {
+                    Log.i(TAG, "Point: " + points.get(count));
+                    mMap.drawLine(points.get(count++));
 
-                if(count <= points.size() -1){
-                    timedOutput(time);
+                    if (count <= points.size() - 1) {
+                        timedOutput(time);
+                    }
                 }
             }
         }, time);
@@ -185,10 +182,17 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
     }
 
     /**
-     * Getter method for accsess list of points.
+     * Getter method for accessing list of points.
      * @return points
      */
     public List<LatLng> getPoints(){
         return points;
+    }
+
+    /**
+     * reset method for points.
+     */
+    public void resetPoints(){
+        points = null;
     }
 }

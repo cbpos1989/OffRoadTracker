@@ -13,4 +13,7 @@
     <string name="danger">Danger</string>
     <string name="edit_dialog_hint">Please enter a title</string>
     <string name="edit_coords_hint">Enter Coordinates eg. "53.347132, -6.259146"</string>
+    <string name="stop_tracking_message">Do you want to stop tracking route?</string>
+    <string name="positive_button_message">Yes</string>
+    <string name="negative_button_message">No</string>
 </resources>
