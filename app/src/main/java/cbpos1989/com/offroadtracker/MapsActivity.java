@@ -35,6 +35,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
@@ -479,21 +480,21 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 String description;
                 description = input.getText().toString();
 
-                int bitmap = 0;
+                String markerType = "point_of_interest";
 
                 RadioButton checkedButton = (RadioButton) v.findViewById(radioGroup.getCheckedRadioButtonId());
 
                 switch (checkedButton.getId()) {
                     case R.id.interest_radio_button:
-                        bitmap = R.drawable.ic_explore_red_48dp;
+                        markerType = "point_of_interest";
                         break;
 
                     case R.id.danger_radio_button:
-                        bitmap = R.drawable.ic_close_white_48dp;
+                        markerType = "danger";
                         break;
                 }
 
-                saveToFirebase(latLng, description);
+                saveToFirebase(latLng, description, markerType);
                 drawMarker();
             }
         });
@@ -511,9 +512,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         onBackPressed();
     }
 
-    private void saveToFirebase(LatLng latLng, String description){
+    private void saveToFirebase(LatLng latLng, String description, String markerType){
         Map locations = new HashMap();
         locations.put("timestamp",mLastUpdateTime);
+        locations.put("marker_type",markerType);
         locations.put("description", description);
         Map coordinate = new HashMap();
         coordinate.put("latitude",latLng.latitude);
@@ -532,6 +534,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     Map data = (Map) dataSnapshot.getValue();
                     String timestamp = (String) data.get("timestamp");
                     String description = (String) data.get("description");
+                    String markerType = (String) data.get("marker_type");
 
                     Map coordinate = (HashMap) data.get("location");
                     double latitude = (double) (coordinate.get("latitude"));
@@ -543,7 +546,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     MarkerOptions markerOptions = new MarkerOptions()
                             .position(latLng)
                             .title(description)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_explore_black_24dp));
+                            .icon(BitmapDescriptorFactory.fromResource(assignBitmap(markerType)));
                     Marker marker = mMap.addMarker(markerOptions);
                     mMarkerList.add(marker);
                     Log.i(TAG, "Markers on Map: " + mMarkerList.size());
@@ -559,8 +562,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void drawMarker(){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = new Date();
+        mLastUpdateTime = dateFormat.format(date).toString();
 
-        mFirebase.limitToLast(1).addChildEventListener(new ChildEventListener() {
+        Query queryRef = mFirebase.orderByChild("timestamp").startAt(mLastUpdateTime);
+        queryRef.limitToLast(1).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -568,6 +576,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 Map data = (Map) dataSnapshot.getValue();
                 String timestamp = (String) data.get("timestamp");
                 String description = (String) data.get("description");
+                String markerType = (String) data.get("marker_type");
 
                 Map coordinate = (HashMap) data.get("location");
                 double latitude = (double) (coordinate.get("latitude"));
@@ -579,7 +588,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 MarkerOptions markerOptions = new MarkerOptions()
                         .position(latLng)
                         .title(description)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_explore_black_24dp));
+                        .icon(BitmapDescriptorFactory.fromResource(assignBitmap(markerType)));
                 Marker marker = mMap.addMarker(markerOptions);
                 mMarkerList.add(marker);
                 Log.i(TAG, "Markers on Map: " + mMarkerList.size());
@@ -606,6 +615,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }
         });
 
+    }
+
+    private int assignBitmap(String markerType){
+        switch (markerType){
+            case "point_of_interest":   return R.drawable.ic_point_of_interest_48dp;
+            case "danger": return R.drawable.ic_close_white_48dp;
+        }
+        return 0;
     }
 
 
