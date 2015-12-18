@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.service.carrier.CarrierMessagingService;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,14 +31,22 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ServerValue;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -48,8 +57,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 
 /**
@@ -58,19 +73,24 @@ import java.util.List;
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
  *
  */
-public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener {
+public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener{
     private static final String TAG = "MapsActivity";
+    private final String FILENAME = "route.gpx";
     private final String USER_PREFERENCES = "userOptions";
+    private static final String FIREBASE_URL = "https://offroad-tracker.firebaseio.com/markers";
     private String userChoice;
 
+    private Firebase mFirebase;
     protected GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Location mLocation;
+    private String mLastUpdateTime;
+    private ArrayList<Marker> mMarkerList = new ArrayList<>();
     private ArrayList<Location> points = new ArrayList<Location>();
     private Polyline route;
     private GPXReader gpxReader;
 
-    private final String FILENAME = "route.gpx";
+
     private boolean stopLoc = false;
     private boolean routeFinished = true;
     private int moveCameraFactor = 10;
@@ -94,6 +114,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
+
+        //Setting up Firebase
+        Firebase.setAndroidContext(this);
+        mFirebase = new Firebase(FIREBASE_URL);
+        initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
         gpxReader = new GPXReader();
@@ -398,7 +423,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         } catch (SecurityException se) {
             se.printStackTrace();
         }
@@ -446,8 +471,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "in method", Toast.LENGTH_SHORT).show();
-
+                //Toast.makeText(getApplicationContext(), "in method", Toast.LENGTH_SHORT).show();
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = new Date();
+                mLastUpdateTime = dateFormat.format(date).toString();
                 String description;
                 description = input.getText().toString();
 
@@ -465,10 +493,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                         break;
                 }
 
-                mMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(description)
-                        .icon(BitmapDescriptorFactory.fromResource(bitmap)));
+                saveToFirebase(latLng, description);
+                drawMarker();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -484,6 +510,104 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void goBack(View v){
         onBackPressed();
     }
+
+    private void saveToFirebase(LatLng latLng, String description){
+        Map locations = new HashMap();
+        locations.put("timestamp",mLastUpdateTime);
+        locations.put("description", description);
+        Map coordinate = new HashMap();
+        coordinate.put("latitude",latLng.latitude);
+        coordinate.put("longitude",latLng.longitude);
+        locations.put("location",coordinate);
+        mFirebase.push().setValue(locations);
+    }
+
+    private void initializeMarkers(){
+        mFirebase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                Log.i(TAG, "Data Count: " + snapshot.getChildrenCount());
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    //Get data from Firebase
+                    Map data = (Map) dataSnapshot.getValue();
+                    String timestamp = (String) data.get("timestamp");
+                    String description = (String) data.get("description");
+
+                    Map coordinate = (HashMap) data.get("location");
+                    double latitude = (double) (coordinate.get("latitude"));
+                    double longitude = (double) (coordinate.get("longitude"));
+
+                    LatLng latLng = new LatLng(latitude, longitude);
+
+                    //Add Marker
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(latLng)
+                            .title(description)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_explore_black_24dp));
+                    Marker marker = mMap.addMarker(markerOptions);
+                    mMarkerList.add(marker);
+                    Log.i(TAG, "Markers on Map: " + mMarkerList.size());
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+
+    private void drawMarker(){
+
+        mFirebase.limitToLast(1).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                //Get data from Firebase
+                Map data = (Map) dataSnapshot.getValue();
+                String timestamp = (String) data.get("timestamp");
+                String description = (String) data.get("description");
+
+                Map coordinate = (HashMap) data.get("location");
+                double latitude = (double) (coordinate.get("latitude"));
+                double longitude = (double) (coordinate.get("longitude"));
+
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                //Add Marker
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(latLng)
+                        .title(description)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_explore_black_24dp));
+                Marker marker = mMap.addMarker(markerOptions);
+                mMarkerList.add(marker);
+                Log.i(TAG, "Markers on Map: " + mMarkerList.size());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+
 
     /**
      * Dialog that will allow the user to stop tracking there route.
