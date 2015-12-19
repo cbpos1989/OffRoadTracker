@@ -71,8 +71,8 @@ public class MainMenu extends AppCompatActivity {
 
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(USER_PREFERENCES, "Live");
-        editor.putString(USER_PREFERENCES,coords);
+        editor.putString("UserChoice", "Live");
+        editor.putString("Coords",coords);
         editor.commit();
 
 
@@ -84,7 +84,7 @@ public class MainMenu extends AppCompatActivity {
 
     public void onClickLoadRoute(View view){
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(USER_PREFERENCES,"Load");
+        editor.putString("UserChoice","Load");
         editor.commit();
 
         Intent mapActivity = new Intent(this, MapsActivity.class);

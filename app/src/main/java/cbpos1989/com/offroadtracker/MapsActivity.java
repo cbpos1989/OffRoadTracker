@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -107,11 +108,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         //Get user choice to either display demo route or live route
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
-        userChoice = sharedpreferences.getString(USER_PREFERENCES, null);
+        userChoice = sharedpreferences.getString("UserChoice", null);
+        String coords = sharedpreferences.getString("Coords",null);
+
+        Log.i(TAG,"Coords from pref: " + coords);
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-
-        //LatLng startingPoint = parseCoords(coords);
 
         //Setting up Google Map
         buildGoogleApiClient();
@@ -121,7 +123,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //Setting up Firebase
         Firebase.setAndroidContext(this);
         mFirebase = new Firebase(FIREBASE_URL);
-        new DrawMarkers().execute(this,mMap);
+        new DrawMarkers(this,mMap).execute();
         //initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
@@ -130,14 +132,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         if (userChoice.equals("Live")) {
             routeFinished = false;
-            Log.i(TAG,"FirstCoord: " + firstCoord);
+            //Log.i(TAG,"FirstCoord: " + firstCoord);
             //Move camera and set coordinates to last known position
             try {
                 Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-                if (lastKnownLocationGPS != null) {
-                    prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
+                if(coords != null) {
+                    prevCoordinates = parseCoords(coords);
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
+                } else {
+                    if (lastKnownLocationGPS != null) {
+                        prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
+                    }
                 }
             }catch(SecurityException se){
                 se.printStackTrace();
@@ -673,16 +680,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //53.347132, -6.259146
         ArrayList<Double> coordsList = new ArrayList<>();
 
+        Log.i(TAG,"Coords: " + coords);
         for (String str: coords.split(",")){
             str.trim();
             try {
                 coordsList.add(Double.parseDouble(str));
+                return new LatLng(coordsList.get(0),coordsList.get(1));
             } catch (NumberFormatException nfe){
                 Toast.makeText(this,nfe.getMessage(),Toast.LENGTH_SHORT).show();
             }
         }
 
-        return new LatLng(coordsList.get(0),coordsList.get(1));
+        return new LatLng(0,0);
     }
 }
 

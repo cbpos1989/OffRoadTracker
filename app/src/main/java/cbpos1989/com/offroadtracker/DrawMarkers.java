@@ -1,5 +1,6 @@
 package cbpos1989.com.offroadtracker;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,27 +21,51 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Colm on 19/12/2015.
+ * Created by Colm O'Sullivan on 19/12/2015.
  */
 public class DrawMarkers extends AsyncTask<Object,Void,Void> {
     private final String TAG = "DrawMarkers";
     private static final String FIREBASE_URL = "https://offroad-tracker.firebaseio.com/markers";
     private Firebase mFirebase;
     private GoogleMap mMap;
-    private String mLastUpdateTime;
+    private ProgressDialog progressDialog;
+    private MapsActivity mapsActivity;
 
     private ArrayList<Marker> mMarkerList = new ArrayList<>();
 
+    public DrawMarkers(MapsActivity mapsActivity, GoogleMap map) {
+        super();
+        this.mapsActivity = mapsActivity;
+        this.mMap = map;
+    }
+
+    @Override
+    protected void onPreExecute(){
+        super.onPreExecute();
+        //Setup Progress Dialog
+        progressDialog = new ProgressDialog(mapsActivity);
+        progressDialog.setMessage("Loading Markers");
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+
+
+    }
+
     @Override
     protected Void doInBackground(Object... params) {
-        mMap = (GoogleMap) params[1];
-
         //Setting up Firebase
-        Firebase.setAndroidContext((MapsActivity)params[0]);
+        Firebase.setAndroidContext(mapsActivity);
         mFirebase = new Firebase(FIREBASE_URL);
-
         initializeMarkers();
         return null;
+    }
+
+
+    @Override
+    protected void onPostExecute(Void result){
+        super.onPostExecute(result);
+        progressDialog.dismiss();
+
     }
 
     private void initializeMarkers(){
