@@ -48,8 +48,8 @@
                 android:layout_weight="4"/>
 
             <EditText
-                android:id="@+id/username_field"
-                style="@style/Login_Field"
+                android:id="@+id/coords_field"
+                style="@style/Text_Field"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

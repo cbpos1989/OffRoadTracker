@@ -12,8 +12,13 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class MainMenu extends AppCompatActivity {
     private final String TAG = "MainMenu";
@@ -61,9 +66,16 @@ public class MainMenu extends AppCompatActivity {
     }
 
     public void onClickMapButton(View view){
+        EditText coordsField = (EditText) findViewById(R.id.coords_field);
+        String coords = coordsField.getText().toString();
+
+
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(USER_PREFERENCES,"Live");
+        editor.putString(USER_PREFERENCES, "Live");
+        editor.putString(USER_PREFERENCES,coords);
         editor.commit();
+
+
 
         Intent mapActivity = new Intent(this, MapsActivity.class);
         startActivity(mapActivity);
@@ -79,7 +91,6 @@ public class MainMenu extends AppCompatActivity {
         startActivity(mapActivity);
 
     }
-
 
     public boolean onKeyDown(int keyCode,KeyEvent event){
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
@@ -111,6 +122,7 @@ public class MainMenu extends AppCompatActivity {
 
         return super.onKeyDown(keyCode,event);
     }
+
 
 
 }

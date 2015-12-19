@@ -111,6 +111,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
+        //LatLng startingPoint = parseCoords(coords);
+
         //Setting up Google Map
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -665,6 +667,22 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void doNegativeClick() {
         // Do stuff here.
         Log.i("FragmentAlertDialog", "Negative click!");
+    }
+
+    private LatLng parseCoords(String coords){
+        //53.347132, -6.259146
+        ArrayList<Double> coordsList = new ArrayList<>();
+
+        for (String str: coords.split(",")){
+            str.trim();
+            try {
+                coordsList.add(Double.parseDouble(str));
+            } catch (NumberFormatException nfe){
+                Toast.makeText(this,nfe.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        return new LatLng(coordsList.get(0),coordsList.get(1));
     }
 }
 
