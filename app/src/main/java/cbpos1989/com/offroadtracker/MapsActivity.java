@@ -119,7 +119,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //Setting up Firebase
         Firebase.setAndroidContext(this);
         mFirebase = new Firebase(FIREBASE_URL);
-        initializeMarkers();
+        new DrawMarkers().execute(this,mMap);
+        //initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
         gpxReader = new GPXReader();
@@ -562,16 +563,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void drawMarker(){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = new Date();
-        mLastUpdateTime = dateFormat.format(date).toString();
-
-        Query queryRef = mFirebase.orderByChild("timestamp").startAt(mLastUpdateTime);
-        queryRef.limitToLast(1).addChildEventListener(new ChildEventListener() {
+        Log.i(TAG,"Time: " + mLastUpdateTime);
+        Query queryRef = mFirebase.orderByChild("timestamp").startAt(mLastUpdateTime).limitToFirst(1);
+        ChildEventListener childEventListener = queryRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
                 //Get data from Firebase
                 Map data = (Map) dataSnapshot.getValue();
                 String timestamp = (String) data.get("timestamp");
