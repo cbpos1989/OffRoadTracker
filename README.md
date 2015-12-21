@@ -7,17 +7,22 @@ An app that will allow the users to track their hikes or bike rides. The key to 
 *Displays current user's position.
 *Draw polylines between current position and previous position.
 *Zooms to user's current position.
+*User can pause route and end route.
 2.Live route tracking with lines marking the route the user has taken.
 *User can switch back and forth between Main Menu and Map with the route persisting.
 *Save current route to internal GPX file.
 3.Live Compass
 *Main menu will feature a live updating compass.
-*Compass will feature on main map screen and will be clickable to bring up a larger version.
+*Orientation style compass for increased navigation. (Done but could user better image)
 4.Main Menu
 *Live Compass.
 *Button to open map.
+*Coordinates field for the user to define a starting location. (Needs Better Error Handling)
 5.Custom user markers
 *User can place route markers on map to leave advice/guidance for others.
+*Persistence on the map using Firebase to store markers to database.
+6.Load Previous Route
+*Can load previous gpx file and automatically start plotting lines to mimic real life tracking of a route.
 
 ## Planned Features: <h2>
 1.Live route tracking with lines marking the route the user has taken.
@@ -29,15 +34,15 @@ An app that will allow the users to track their hikes or bike rides. The key to 
 2.Custom user markers
 *Make route markers persistent (possibly on server)
 *Various different types of images for different types of markers (Views, hazards, shortcut, etc.)
+*Only draw markers that are near the user’s location.
 3.Live Compass
-*Orientation style compass for increased navigation.
+*Compass will feature on main map screen and will be clickable to bring up a larger version.
 4.Main Menu
-*Text Field that will allow user to predefine coordinates
 *Button to Download Map
-*Download Map
+5.Download Map
 *Allow user to enter coordinates and zoom level to download map tile.
-*User can download as many tiles as needed.
-5.User Details
+*User can download as many tiles as needed. (not sure if compliant with T&C of Google API)
+6.User Details
 *Allow user to setup up user profile
 *Profile Image
 *Name
