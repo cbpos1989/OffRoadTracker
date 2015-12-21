@@ -24,15 +24,18 @@ public class MainMenu extends AppCompatActivity {
     private final String TAG = "MainMenu";
     private final String FILENAME = "route.gpx";
     private final String USER_PREFERENCES = "userOptions";
-    private MainMenu thisActivity = this;
-    SharedPreferences sharedpreferences;
+    private EditText coordsField;
+    private SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-        Log.i(TAG, "In Main Menu");
+        //Log.i(TAG, "In Main Menu");
         sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+
+        coordsField = (EditText) findViewById(R.id.coords_field);
+        //coordsField.setText(" ");
     }
 
     @Override
@@ -66,16 +69,20 @@ public class MainMenu extends AppCompatActivity {
     }
 
     public void onClickMapButton(View view){
-        EditText coordsField = (EditText) findViewById(R.id.coords_field);
         String coords = coordsField.getText().toString();
-
+        if(coords.equals("")) {
+            Log.i(TAG, "Coords: " + coords);
+        }
 
         SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.clear();
         editor.putString("UserChoice", "Live");
-        editor.putString("Coords",coords);
+        if(!(coords.equals(""))) {
+            Log.i(TAG,"Don't do this");
+            editor.putString("Coords", coords);
+        }
+
         editor.commit();
-
-
 
         Intent mapActivity = new Intent(this, MapsActivity.class);
         startActivity(mapActivity);

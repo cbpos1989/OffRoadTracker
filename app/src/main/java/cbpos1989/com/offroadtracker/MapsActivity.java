@@ -6,26 +6,20 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.os.Build;
+
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
-import android.service.carrier.CarrierMessagingService;
+
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -37,11 +31,10 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-import com.firebase.client.ServerValue;
+
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,34 +45,30 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.TileOverlay;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-
 /**
- * Class that will display the maps activity. Track the user location and draw a path of the user's route using polylines.
+ * Class that will display the maps activity. Track the user's location and draw a path of the
+ * user's route using polylines. User can also long click on the map to bring up the add marker
+ * dialog and place custom markers on the map.
  *
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
- *
  */
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener{
     private static final String TAG = "MapsActivity";
     private final String FILENAME = "route.gpx";
     private final String USER_PREFERENCES = "userOptions";
-    private static final String FIREBASE_URL = "https://offroad-tracker.firebaseio.com/markers";
+    private String FIREBASE_URL;
+    private final String FIREBASE_ROOT_NODE = "markers";
     private String userChoice;
 
     private Firebase mFirebase;
@@ -92,14 +81,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Polyline route;
     private GPXReader gpxReader;
 
-
     private boolean stopLoc = false;
     private boolean routeFinished = true;
     private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
 
-    File routeFile;
+    private File routeFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,8 +109,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         setUpMapIfNeeded();
 
         //Setting up Firebase
+        FIREBASE_URL = getString(R.string.firebase_url);
         Firebase.setAndroidContext(this);
-        mFirebase = new Firebase(FIREBASE_URL);
+        mFirebase = new Firebase(FIREBASE_URL + FIREBASE_ROOT_NODE);
         new DrawMarkers(this,mMap).execute();
         //initializeMarkers();
 
@@ -166,7 +155,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     private void loadPreviousRoute(InputStream inputStream){
         points.clear();
-
         gpxReader.execute(inputStream, this);
     }
 
@@ -221,6 +209,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if(routeFinished) {
             firstCoord = true;
         }
+
 
         gpxReader.cancel(true);
         super.onDestroy();
@@ -681,17 +670,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         ArrayList<Double> coordsList = new ArrayList<>();
 
         Log.i(TAG,"Coords: " + coords);
-        for (String str: coords.split(",")){
-            str.trim();
-            try {
+        try {
+            for (String str: coords.split(",")){
+                str.trim();
                 coordsList.add(Double.parseDouble(str));
-                return new LatLng(coordsList.get(0),coordsList.get(1));
-            } catch (NumberFormatException nfe){
-                Toast.makeText(this,nfe.getMessage(),Toast.LENGTH_SHORT).show();
             }
+        } catch (NumberFormatException nfe){
+            Toast.makeText(this,nfe.getMessage(),Toast.LENGTH_SHORT).show();
+            return new LatLng(0,0);
         }
 
-        return new LatLng(0,0);
+        return new LatLng(coordsList.get(0),coordsList.get(1));
     }
 }
 
