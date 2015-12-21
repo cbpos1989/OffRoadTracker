@@ -9,9 +9,11 @@
     <string name="open_map_button">Open Map</string>
     <string name="load_route_button">Load Route</string>
     <string name="interest">Point of Interest</string>
-    <string name="caution">Caution</string>
-    <string name="danger">Danger</string>
-    <string name="edit_dialog_hint">Please enter a title</string>
+    <string name="warning">Warning</string>
+    <string name="trail_start">Start of Trail</string>
+    <string name="obstacle">Obstacle on Trail</string>
+    <string name="dead_end">Dead End</string>
+    <string name="edit_markers_hint">Please enter your Message</string>
     <string name="edit_coords_hint">Enter Coordinates eg. "53.347132, -6.259146"</string>
     <string name="stop_tracking_message">Do you want to stop tracking route?</string>
     <string name="positive_button_message">Yes</string>

@@ -39,28 +39,9 @@
             android:onClick="goBack"
             android:background="@null"
             android:src="@drawable/ic_explore_red_48dp"/>
-
-        <!--<ImageButton-->
-            <!--android:layout_width="75dp"-->
-            <!--android:layout_height="75dp"-->
-            <!--android:layout_gravity="center|bottom"-->
-            <!--android:padding="10dp"-->
-            <!--android:scaleType="fitCenter"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:id="@+id/demoBtn"-->
-            <!--android:paddingRight="10dp"-->
-            <!--android:adjustViewBounds="true"-->
-            <!--android:onClick="noGPSLocation"-->
-            <!--android:src="@drawable/ic_launcher"/>-->
     </fragment>
 
 
-    <!--<Button-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:onClick="stopLocationListener"-->
-        <!--android:id="@+id/stopLocListenerBtn"-->
-        <!--android:text="Stop"-->
-        <!--/>-->
+
 
 </LinearLayout>

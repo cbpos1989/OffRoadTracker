@@ -487,9 +487,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                     case R.id.interest_radio_button:
                         markerType = "point_of_interest";
                         break;
-
-                    case R.id.danger_radio_button:
-                        markerType = "danger";
+                    case R.id.warning_radio_button:
+                        markerType = "warning";
+                        break;
+                    case R.id.trail_start_radio_button:
+                        markerType = "trail_start";
+                        break;
+                    case R.id.obstacle_radio_button:
+                        markerType = "obstacle";
+                        break;
+                    case R.id.dead_end_radio_button:
+                        markerType = "dead_end";
                         break;
                 }
 
@@ -614,7 +622,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private int assignBitmap(String markerType){
         switch (markerType){
             case "point_of_interest":   return R.drawable.ic_point_of_interest_48dp;
-            case "danger": return R.drawable.ic_close_white_48dp;
+            case "warning": return R.drawable.ic_warning_48dp;
+            case "trail_start":   return R.drawable.ic_trail_start_48dp;
+            case "obstacle": return R.drawable.ic_obstacle_48dp;
+            case "dead_end":   return R.drawable.ic_dead_end_48dp;
         }
         return 0;
     }

@@ -110,7 +110,10 @@ public class DrawMarkers extends AsyncTask<Object,Void,Void> {
     private int assignBitmap(String markerType){
         switch (markerType){
             case "point_of_interest":   return R.drawable.ic_point_of_interest_48dp;
-            case "danger": return R.drawable.ic_close_white_48dp;
+            case "warning": return R.drawable.ic_warning_48dp;
+            case "dead_end": return R.drawable.ic_dead_end_48dp;
+            case "trail_start": return R.drawable.ic_trail_start_48dp;
+            case "obstacle": return R.drawable.ic_obstacle_48dp;
         }
         return 0;
     }

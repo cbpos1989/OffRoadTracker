@@ -14,77 +14,83 @@
         android:gravity="center_horizontal"
         android:singleLine="true"
         android:inputType="textCapWords|textPersonName"
-        android:hint="@string/edit_dialog_hint"
+        android:hint="@string/edit_markers_hint"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF" />
 
     <LinearLayout
-        android:id="@+id/inner_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <!--<ImageButton-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:src="@drawable/navigation_selector"-->
-        <!--/>-->
-
-        <!--<ImageButton-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:src="@drawable/navigation_selector"-->
-        <!--/>-->
-
-        <!--<ImageButton-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:src="@drawable/navigation_selector"/>-->
-
-        <RadioGroup
-            android:id="@+id/radio_group_dialog"
+            android:id="@+id/inner_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:checkedButton="@id/interest_radio_button">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
+            <RadioGroup
+                android:id="@+id/radio_group_dialog"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:checkedButton="@id/interest_radio_button">
 
-            <!--<ImageView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/navigation_selector" />-->
+                <RadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/interest"
+                    android:id="@id/interest_radio_button"
+                    android:textColor="#FFFFFF"
+                    android:drawableRight="@drawable/ic_point_of_interest_white_48dp"
+                    android:background="@drawable/layout_background"
+                    android:layout_weight="1" />
 
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/interest"
-                android:id="@id/interest_radio_button"
+                <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/warning"
+                android:id="@+id/warning_radio_button"
                 android:textColor="#FFFFFF"
-                android:drawableRight="@drawable/ic_explore_black_24dp"
-                android:background="@drawable/layout_background"
-                android:layout_weight="1" />
-
-
-            <!--<ImageView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:src="@drawable/navigation_selector" />-->
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/danger"
-                android:id="@+id/danger_radio_button"
-                android:textColor="#FFFFFF"
-                android:drawableRight="@drawable/ic_close_black_24dp"
+                android:drawableRight="@drawable/ic_warning_white_48dp"
                 android:background="@drawable/layout_background"
                 android:maxLines="1"
                 android:layout_weight="1" />
 
+                <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/trail_start"
+                android:id="@+id/trail_start_radio_button"
+                android:textColor="#FFFFFF"
+                android:drawableRight="@drawable/ic_trail_start_white_48dp"
+                android:background="@drawable/layout_background"
+                android:maxLines="1"
+                android:layout_weight="1" />
 
-        </RadioGroup>
+                <RadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/obstacle"
+                    android:id="@+id/obstacle_radio_button"
+                    android:textColor="#FFFFFF"
+                    android:drawableRight="@drawable/ic_obstacle_white_48dp"
+                    android:background="@drawable/layout_background"
+                    android:maxLines="1"
+                    android:layout_weight="1" />
+
+                <RadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/dead_end"
+                    android:id="@+id/dead_end_radio_button"
+                    android:textColor="#FFFFFF"
+                    android:drawableRight="@drawable/ic_dead_end_white_48dp"
+                    android:background="@drawable/layout_background"
+                    android:maxLines="1"
+                    android:layout_weight="1" />
+            </RadioGroup>
+
 
 
     </LinearLayout>
+
+
 
 </LinearLayout>
