@@ -1,4 +1,6 @@
-# OffRoad Tracker <h1> 
+<snippet>
+  <content><![CDATA[
+# ${1:OffRoad Tracker}
 An app that will allow the users to track their hikes or bike rides. The key to the app usefulness is the fact that the user will download the map tiles to their phone before heading out so that they can navigate and track their route with the need of data or wifi. Primarily focused towards mountain hikers and off-road bikers who need maps for navigation,but not at the cost of their phone battery or data.
 
 ## OffRoad Tracker Plan <h2>
@@ -48,5 +50,7 @@ An app that will allow the users to track their hikes or bike rides. The key to 
 *Name
 *Biker/Hiker
 *Username appears on custom markers
-
+]]></content>
+  <tabTrigger>readme</tabTrigger>
+</snippet>
 
