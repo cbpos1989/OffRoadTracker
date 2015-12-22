@@ -5,6 +5,8 @@ import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -33,15 +35,21 @@ public class GPXWriter {
      * @param n name for the file
      * @param points List of locations to be written to gpx format
      */
-    public static void writePath(File file, String n, List<Location> points) {
+    public static void writePath(File file, String n, List<Object> points) {
 
         String header = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?><gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.15.5\" version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk>\n";
         String name = "<name>" + n + "</name>\n<trkseg>\n";
 
         String segments = "";
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        for (Location l : points) {
-            segments += "<trkpt lat=\"" + l.getLatitude() + "\" lon=\"" + l.getLongitude() + "\">\n<ele>0.0</ele>\n<time>" + df.format(new Date(l.getTime())) + "</time>\n</trkpt>\n";
+        if (points.get(0) instanceof Location) {
+            for (Object l : points) {
+                segments += "<trkpt lat=\"" + ((Location)l).getLatitude() + "\" lon=\"" + ((Location)l).getLongitude() + "\">\n<ele>0.0</ele>\n<time>" + df.format(new Date(((Location)l).getTime())) + "</time>\n</trkpt>\n";
+            }
+        } else {
+            for (Object l : points) {
+                segments += "<trkpt lat=\"" + ((LatLng)l).latitude + "\" lon=\"" + ((LatLng)l).longitude + "\">\n<ele>0.0</ele>\n<time>" + df.format(new Date()) + "</time>\n</trkpt>\n";
+            }
         }
 
         String footer = "</trkseg>\n</trk>\n</gpx>";
@@ -62,4 +70,6 @@ public class GPXWriter {
             Log.e(TAG, "Error Writting Path",e);
         }
     }
+
+
 }

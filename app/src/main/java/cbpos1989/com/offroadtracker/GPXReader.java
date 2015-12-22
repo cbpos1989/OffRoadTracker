@@ -1,5 +1,7 @@
 package cbpos1989.com.offroadtracker;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
@@ -13,33 +15,43 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class that reads a GPX file and parses the Latitude and Longitude into an ArrayList of LatLng
  *
  * Created by Colm O'Sullivan on 30/09/2015.
  */
-public class GPXReader extends AsyncTask<Object,Integer,List>{
+public class GPXReader extends AsyncTask<Object,Integer,Integer>{
+    private final String POINT_COUNT = "pointCount";
     private List<LatLng> points = new ArrayList<LatLng>();
     private double latitude;
     private double longitude;
     private final String TAG = "GPXReader";
-    MapsActivity mMap;
-    int count;
+    MapsActivity mapsActivity;
+    private int count;
 
-    public GPXReader(){}
+    public GPXReader(){
+
+    }
+
+    public GPXReader(MapsActivity mapsActivity, int count){
+        this.mapsActivity = mapsActivity;
+        this.count = count;
+    }
 
     @Override
-    protected List doInBackground(Object... objects) {
-        mMap = (MapsActivity)objects[1];
+    protected Integer doInBackground(Object... objects) {
+        if(!isCancelled()) {
+            if (objects[0] instanceof InputStream) {
+                readPath((InputStream) objects[0]);
+            } else {
+                readPath((File) objects[0]);
+            }
 
-        if(objects[0] instanceof InputStream){
-            readPath((InputStream)objects[0]);
-        } else {
-            readPath((File) objects[0]);
+            publishProgress(0);
         }
-        publishProgress(0);
-        return points;
+        return count;
     }
 
     @Override
@@ -59,8 +71,8 @@ public class GPXReader extends AsyncTask<Object,Integer,List>{
             public void run() {
                 if(!isCancelled()) {
                     Log.i(TAG, "Point: " + points.get(count));
-                    mMap.drawLine(points.get(count++));
-
+                    mapsActivity.onPauseRoute(count);
+                    mapsActivity.drawLine(points.get(count++));
                     if (count <= points.size() - 1) {
                         timedOutput(time);
                     }

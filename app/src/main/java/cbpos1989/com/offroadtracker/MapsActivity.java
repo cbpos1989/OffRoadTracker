@@ -63,13 +63,14 @@ import java.util.TimeZone;
  *
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
  */
-public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener{
+public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener, onPauseRoute{
     private static final String TAG = "MapsActivity";
     private final String FILENAME = "route.gpx";
     private final String USER_PREFERENCES = "userOptions";
     private String FIREBASE_URL;
     private final String FIREBASE_ROOT_NODE = "markers";
     private String userChoice;
+    SharedPreferences sharedPref;
 
     private Firebase mFirebase;
     protected GoogleApiClient mGoogleApiClient;
@@ -77,17 +78,20 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Location mLocation;
     private String mLastUpdateTime;
     private ArrayList<Marker> mMarkerList = new ArrayList<>();
-    private ArrayList<Location> points = new ArrayList<Location>();
+    private ArrayList<Object> points = new ArrayList<Object>();
     private Polyline route;
     private GPXReader gpxReader;
 
     private boolean stopLoc = false;
+    private boolean liveRouteActive = false;
     private boolean routeFinished = true;
     private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
 
     private File routeFile;
+    private InputStream routeInputStream;
+    private int count;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,11 +120,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
-        gpxReader = new GPXReader();
-
 
         if (userChoice.equals("Live")) {
             routeFinished = false;
+            liveRouteActive = true;
             //Log.i(TAG,"FirstCoord: " + firstCoord);
             //Move camera and set coordinates to last known position
             try {
@@ -138,24 +141,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             }catch(SecurityException se){
                 se.printStackTrace();
             }
-
-            //Loads internal GPX File
-            routeFile = new File(this.getFilesDir(), FILENAME);
-            loadCurrentRoute(routeFile);
-
         } else if(userChoice.equals("Load")) {
-            firstCoord = true;
-            Log.i(TAG,"FirstCooord: " + firstCoord);
-            //Loads external GPX File
-            InputStream XmlFileInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
-            loadPreviousRoute(XmlFileInputStream);
+            sharedPref = getSharedPreferences("PointCount", Context.MODE_PRIVATE);
+            count = sharedPref.getInt("point_count", 0);
+
+            routeFinished = false;
+            Log.i(TAG, "FirstCooord: " + firstCoord);
         }
 
-    }
+        gpxReader = new GPXReader();
 
-    private void loadPreviousRoute(InputStream inputStream){
-        points.clear();
-        gpxReader.execute(inputStream, this);
+        //Loads internal GPX File
+        routeFile = new File(this.getFilesDir(), FILENAME);
+        loadCurrentRoute(routeFile);
     }
 
     /**
@@ -201,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
         //Load Internal GPX File
-        if (userChoice.contains("Live") && !routeFinished) {
+        if (!routeFinished) {
             routeFile = new File(this.getFilesDir(), FILENAME);
             saveCurrentRoute(routeFile);
         }
@@ -210,8 +208,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             firstCoord = true;
         }
 
+        //Save value of count so load route can start at point it ended at
+        if(userChoice.equals("Load")) {
 
-        gpxReader.cancel(true);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.clear();
+            editor.putInt("point_count", count);
+            editor.commit();
+        }
+
+
+        //gpxReader.cancel(true);
         super.onDestroy();
     }
 
@@ -369,6 +376,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             firstCoord = false;
         }
 
+        if (userChoice.equals("Load")) {
+            points.add(latlng);
+        }
+
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
@@ -407,10 +418,18 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        try {
-            locationManager.removeUpdates(this);
-        } catch (SecurityException se) {
-            se.printStackTrace();
+        if(userChoice.equals("Live")) {
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+        } else {
+            gpxReader.cancel(true);
+            Log.i(TAG, gpxReader.isCancelled() + "");
+
+            gpxReader = null;
+
         }
 
         button.setImageResource(R.drawable.ic_navigation_red_48dp);
@@ -422,10 +441,16 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        } catch (SecurityException se) {
-            se.printStackTrace();
+        if (userChoice.equals("Live")) {
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+        } else {
+            routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
+            gpxReader = new GPXReader(this,count);
+            gpxReader.execute(routeInputStream);
         }
 
         button.setImageResource(R.drawable.ic_pause_red_48dp);
@@ -434,12 +459,22 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void stopRoute(){
-        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        if (userChoice.equals("Live")) {
+            LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        try {
-            locationManager.removeUpdates(this);
-        } catch (SecurityException se) {
-            se.printStackTrace();
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException se) {
+                se.printStackTrace();
+            }
+
+            liveRouteActive = false;
+        } else {
+            gpxReader.cancel(true);
+            count = 0;
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.clear();
+            editor.commit();
         }
 
         MapsActivity.firstCoord = true;
@@ -447,7 +482,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         routeFile.delete();
         routeFinished = true;
 
-        Toast.makeText(this, "Route Finished" + routeFinished, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Route Finished", Toast.LENGTH_SHORT).show();
 
         onBackPressed();
     }
@@ -628,6 +663,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             case "dead_end":   return R.drawable.ic_dead_end_48dp;
         }
         return 0;
+    }
+
+    @Override
+    public void onPauseRoute(Integer count) {
+        this.count = count;
     }
 
 
