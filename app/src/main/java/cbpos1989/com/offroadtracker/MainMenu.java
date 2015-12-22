@@ -94,7 +94,7 @@ public class MainMenu extends AppCompatActivity {
         editor.putString("UserChoice","Load");
         editor.commit();
 
-        Intent mapActivity = new Intent(this, MapsActivity.class);
+        Intent mapActivity = new Intent(this, LoadMapsActivity.class);
         startActivity(mapActivity);
 
     }

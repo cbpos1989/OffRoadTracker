@@ -2,6 +2,7 @@ package cbpos1989.com.offroadtracker;
 
 import java.io.File;
 import android.location.Location;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,9 +24,8 @@ import java.util.List;
 
 public class GPXWriter {
     private static final String TAG = GPXWriter.class.getName();
-    private static MapsActivity mapsActivity;
-    public GPXWriter(MapsActivity mapsActivity){
-        this.mapsActivity = mapsActivity;
+
+    public GPXWriter() {
     }
 
     /**

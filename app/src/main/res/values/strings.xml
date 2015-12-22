@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">OffRoad Tracker</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps_load">Map</string>
     <string name="title_activity_main_menu">MainMenu</string>
     <string name="compass_heading">Heading 0.0°</string>
 

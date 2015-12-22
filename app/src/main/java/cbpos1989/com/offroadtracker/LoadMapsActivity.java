@@ -6,20 +6,15 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-
 import android.graphics.Color;
-
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-
 import android.os.Bundle;
-
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -31,7 +26,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -63,9 +57,9 @@ import java.util.TimeZone;
  *
  * Created by Alex Scanlan & Colm O'Sullivan on 28/09/2015.
  */
-public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener, onPauseRoute{
-    private static final String TAG = "MapsActivity";
-    private final String FILENAME = "route.gpx";
+public class LoadMapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener, onPauseRoute{
+    private static final String TAG = "LoadMapsActivity";
+    private final String FILENAME = "load_route.gpx";
     private final String USER_PREFERENCES = "userOptions";
     private String FIREBASE_URL;
     private final String FIREBASE_ROOT_NODE = "markers";
@@ -100,7 +94,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         //Get user choice to either display demo route or live route
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
-        userChoice = sharedpreferences.getString("UserChoice", null);
         String coords = sharedpreferences.getString("Coords",null);
 
         Log.i(TAG,"Coords from pref: " + coords);
@@ -120,34 +113,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
+        sharedPref = getSharedPreferences("PointCount", Context.MODE_PRIVATE);
+        count = sharedPref.getInt("point_count", 0);
 
-        if (userChoice.equals("Live")) {
-            routeFinished = false;
-            liveRouteActive = true;
-            //Log.i(TAG,"FirstCoord: " + firstCoord);
-            //Move camera and set coordinates to last known position
-            try {
-                Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                if(coords != null) {
-                    prevCoordinates = parseCoords(coords);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
-                } else {
-                    if (lastKnownLocationGPS != null) {
-                        prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
-                    }
-                }
-            }catch(SecurityException se){
-                se.printStackTrace();
-            }
-        } else if(userChoice.equals("Load")) {
-            sharedPref = getSharedPreferences("PointCount", Context.MODE_PRIVATE);
-            count = sharedPref.getInt("point_count", 0);
-
-            routeFinished = false;
-            Log.i(TAG, "FirstCooord: " + firstCoord);
-        }
+        routeFinished = false;
+        Log.i(TAG, "FirstCooord: " + firstCoord);
 
         gpxReader = new GPXReader();
 
@@ -209,14 +179,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
         //Save value of count so load route can start at point it ended at
-        if(userChoice.equals("Load")) {
-
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.clear();
-            editor.putInt("point_count", count);
-            editor.commit();
-        }
-
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.putInt("point_count", count);
+        editor.commit();
 
         //gpxReader.cancel(true);
         super.onDestroy();
@@ -295,9 +261,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             mLocation = location;
         }
 
-        points.add(location);
-        drawLine(location);
-
         //Only move camera after certain amount of location changes
         if(points.size() % moveCameraFactor == 0) {
             moveCamera(new LatLng(location.getLatitude(),location.getLongitude()));
@@ -336,32 +299,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     public void onConnectionFailed(ConnectionResult connectionResult) {}
 
     /**
-     * Used for drawing the live route the the user will see updating as thier reamin on the MapsActivity
-     * First checks if it is the first coordinates that are recieved and places a starting marker to indicate this
-     * @param location
-     */
-    private void drawLine(Location location) {
-        LatLng currCoordinates = new LatLng(location.getLatitude(),location.getLongitude());
-
-        if(firstCoord){
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
-            mMap.addMarker(new MarkerOptions().position(currCoordinates).title("Marker"));
-            prevCoordinates = currCoordinates;
-            firstCoord = false;
-        }
-
-        Polyline liveRoute = mMap.addPolyline(new PolylineOptions().geodesic(true)
-                        .add(prevCoordinates)
-                        .add(currCoordinates)
-        );
-
-        liveRoute.setColor(Color.RED);
-        liveRoute.setWidth(5.0F);
-        Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
-        prevCoordinates = currCoordinates;
-    }
-
-    /**
      * Used for redrawing the users route when they navigate back to the MapsActivity from another Activity
      * @param latlng
      */
@@ -376,9 +313,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             firstCoord = false;
         }
 
-        if (userChoice.equals("Load")) {
-            points.add(latlng);
-        }
 
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
@@ -391,6 +325,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         route.setWidth(5.0F);
         //Log.i("Route Drawing", "Drawing from " + prevCoordinates + " to " + currCoordinates);
         prevCoordinates = currCoordinates;
+        points.add(latlng);
 
     }
 
@@ -418,19 +353,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        if(userChoice.equals("Live")) {
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-        } else {
-            gpxReader.cancel(true);
-            Log.i(TAG, gpxReader.isCancelled() + "");
+        gpxReader.cancel(true);
+        Log.i(TAG, gpxReader.isCancelled() + "");
 
-            gpxReader = null;
-
-        }
+        gpxReader = null;
 
         button.setImageResource(R.drawable.ic_navigation_red_48dp);
 
@@ -441,17 +367,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        if (userChoice.equals("Live")) {
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-        } else {
-            routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
-            gpxReader = new GPXReader(this,count);
-            gpxReader.execute(routeInputStream);
-        }
+        routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
+        gpxReader = new GPXReader(this,count);
+        gpxReader.execute(routeInputStream);
+
 
         button.setImageResource(R.drawable.ic_pause_red_48dp);
 
@@ -459,25 +378,14 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void stopRoute(){
-        if (userChoice.equals("Live")) {
-            LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
+        gpxReader.cancel(true);
+        count = 0;
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.commit();
 
-            liveRouteActive = false;
-        } else {
-            gpxReader.cancel(true);
-            count = 0;
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.clear();
-            editor.commit();
-        }
-
-        MapsActivity.firstCoord = true;
+        LoadMapsActivity.firstCoord = true;
         File routeFile = new File(getFilesDir(), FILENAME);
         routeFile.delete();
         routeFinished = true;
@@ -566,43 +474,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mFirebase.push().setValue(locations);
     }
 
-    private void initializeMarkers(){
-        mFirebase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                Log.i(TAG, "Data Count: " + snapshot.getChildrenCount());
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    //Get data from Firebase
-                    Map data = (Map) dataSnapshot.getValue();
-                    String timestamp = (String) data.get("timestamp");
-                    String description = (String) data.get("description");
-                    String markerType = (String) data.get("marker_type");
-
-                    Map coordinate = (HashMap) data.get("location");
-                    double latitude = (double) (coordinate.get("latitude"));
-                    double longitude = (double) (coordinate.get("longitude"));
-
-                    LatLng latLng = new LatLng(latitude, longitude);
-
-                    //Add Marker
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(latLng)
-                            .title(description)
-                            .icon(BitmapDescriptorFactory.fromResource(assignBitmap(markerType)));
-                    Marker marker = mMap.addMarker(markerOptions);
-                    mMarkerList.add(marker);
-                    Log.i(TAG, "Markers on Map: " + mMarkerList.size());
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-    }
-
     private void drawMarker(){
         Log.i(TAG, "Time: " + mLastUpdateTime);
         Query queryRef = mFirebase.orderByChild("timestamp").startAt(mLastUpdateTime).limitToFirst(1);
@@ -688,12 +559,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             builder.setMessage(R.string.stop_tracking_message)
                     .setPositiveButton(R.string.positive_button_message, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            ((MapsActivity)getActivity()).doPositiveClick();
+                            ((LoadMapsActivity)getActivity()).doPositiveClick();
                         }
                     })
                     .setNegativeButton(R.string.negative_button_message, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            ((MapsActivity)getActivity()).doNegativeClick();
+                            ((LoadMapsActivity)getActivity()).doNegativeClick();
                         }
                     });
             // Create the AlertDialog object and return it

@@ -2,6 +2,7 @@ package cbpos1989.com.offroadtracker;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.firebase.client.ChildEventListener;
@@ -29,7 +30,7 @@ public class DrawMarkers extends AsyncTask<Object,Void,Void> {
     private Firebase mFirebase;
     private GoogleMap mMap;
     private ProgressDialog progressDialog;
-    private MapsActivity mapsActivity;
+    private FragmentActivity mapsActivity;
 
     private ArrayList<Marker> mMarkerList = new ArrayList<>();
 
@@ -39,11 +40,17 @@ public class DrawMarkers extends AsyncTask<Object,Void,Void> {
         this.mMap = map;
     }
 
+    public DrawMarkers(LoadMapsActivity mapsActivity, GoogleMap map) {
+        super();
+        this.mapsActivity = mapsActivity;
+        this.mMap = map;
+    }
+
     @Override
     protected void onPreExecute(){
         super.onPreExecute();
         //Setup Progress Dialog
-        progressDialog = new ProgressDialog(mapsActivity);
+        progressDialog = new ProgressDialog((FragmentActivity)mapsActivity);
         progressDialog.setMessage("Loading Markers");
         progressDialog.show();
         progressDialog.setCancelable(false);
@@ -54,7 +61,7 @@ public class DrawMarkers extends AsyncTask<Object,Void,Void> {
     @Override
     protected Void doInBackground(Object... params) {
         //Setting up Firebase
-        Firebase.setAndroidContext(mapsActivity);
+        Firebase.setAndroidContext((FragmentActivity)mapsActivity);
         mFirebase = new Firebase(FIREBASE_URL);
         initializeMarkers();
         return null;

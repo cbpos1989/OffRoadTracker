@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import java.io.BufferedReader;
@@ -28,7 +29,7 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
     private double latitude;
     private double longitude;
     private final String TAG = "GPXReader";
-    MapsActivity mapsActivity;
+    FragmentActivity mapsActivity;
     private int count;
 
     public GPXReader(){
@@ -36,6 +37,11 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
     }
 
     public GPXReader(MapsActivity mapsActivity, int count){
+        this.mapsActivity = mapsActivity;
+        this.count = count;
+    }
+
+    public GPXReader(LoadMapsActivity mapsActivity, int count){
         this.mapsActivity = mapsActivity;
         this.count = count;
     }
@@ -71,8 +77,9 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
             public void run() {
                 if(!isCancelled()) {
                     Log.i(TAG, "Point: " + points.get(count));
-                    mapsActivity.onPauseRoute(count);
-                    mapsActivity.drawLine(points.get(count++));
+                    //TODO Make Mapable Interface for both Activites to use these methods
+                    ((LoadMapsActivity)mapsActivity).onPauseRoute(count);
+                    ((LoadMapsActivity)mapsActivity).drawLine(points.get(count++));
                     if (count <= points.size() - 1) {
                         timedOutput(time);
                     }
