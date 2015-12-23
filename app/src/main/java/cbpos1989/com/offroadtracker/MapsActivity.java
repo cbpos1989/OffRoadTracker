@@ -107,6 +107,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
+        ImageButton imageButton = (ImageButton) findViewById(R.id.playbackBtn);
+        imageButton.setVisibility(View.INVISIBLE);
+
         //Setting up Google Map
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -120,34 +123,26 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
+        routeFinished = false;
+        liveRouteActive = true;
+        //Log.i(TAG,"FirstCoord: " + firstCoord);
+        //Move camera and set coordinates to last known position
+        try {
+            Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        if (userChoice.equals("Live")) {
-            routeFinished = false;
-            liveRouteActive = true;
-            //Log.i(TAG,"FirstCoord: " + firstCoord);
-            //Move camera and set coordinates to last known position
-            try {
-                Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                if(coords != null) {
-                    prevCoordinates = parseCoords(coords);
+            if(coords != null) {
+                prevCoordinates = parseCoords(coords);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
+            } else {
+                if (lastKnownLocationGPS != null) {
+                    prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
-                } else {
-                    if (lastKnownLocationGPS != null) {
-                        prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 18));
-                    }
                 }
-            }catch(SecurityException se){
-                se.printStackTrace();
             }
-        } else if(userChoice.equals("Load")) {
-            sharedPref = getSharedPreferences("PointCount", Context.MODE_PRIVATE);
-            count = sharedPref.getInt("point_count", 0);
-
-            routeFinished = false;
-            Log.i(TAG, "FirstCooord: " + firstCoord);
+        }catch(SecurityException se){
+            se.printStackTrace();
         }
+
 
         gpxReader = new GPXReader();
 
@@ -400,9 +395,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         if(stopLoc){
-           pauseRoute(locationManager);
+            pauseRoute(locationManager);
         } else{
-           trackRoute(locationManager);
+            trackRoute(locationManager);
 
             button.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

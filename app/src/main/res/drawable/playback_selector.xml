@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_playback_speed_x4_48dp"
+        android:state_middle="true" />
+
+    <item android:drawable="@drawable/ic_playback_speed_x2_48dp"/>
+
+    <item android:drawable="@drawable/ic_playback_speed_48dp"
+        android:state_checked="true"/>
+</selector>

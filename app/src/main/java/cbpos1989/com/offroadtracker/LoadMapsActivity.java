@@ -26,7 +26,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -76,16 +75,17 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     private Polyline route;
     private GPXReader gpxReader;
 
-    private boolean stopLoc = false;
-    private boolean liveRouteActive = false;
+    private PlaybackState playbackState = PlaybackState.NORMAL;
     private boolean routeFinished = true;
     private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
+    private int playbackSpeed = 1000;
 
     private File routeFile;
     private InputStream routeInputStream;
     private int count;
+    private boolean stopLoc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +100,9 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
+        ImageButton imageButton = (ImageButton) findViewById(R.id.playbackBtn);
+        imageButton.setVisibility(View.VISIBLE);
+
         //Setting up Google Map
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -111,6 +114,22 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         mFirebase = new Firebase(FIREBASE_URL + FIREBASE_ROOT_NODE);
         new DrawMarkers(this,mMap).execute();
         //initializeMarkers();
+
+        try {
+            Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            if (coords != null) {
+                prevCoordinates = parseCoords(coords);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 15));
+            } else {
+                if (lastKnownLocationGPS != null) {
+                    prevCoordinates = new LatLng(lastKnownLocationGPS.getLatitude(), lastKnownLocationGPS.getLongitude());
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(prevCoordinates, 15));
+                }
+            }
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
         sharedPref = getSharedPreferences("PointCount", Context.MODE_PRIVATE);
@@ -329,15 +348,40 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
     }
 
+    public void playbackListener(View view) {
+        ImageButton button = (ImageButton) findViewById(R.id.playbackBtn);
+        
+        switch (playbackState){
+            case NORMAL: 
+                playbackSpeed = 750;
+                gpxReader.setSpeed(750);
+                button.setImageResource(R.drawable.ic_playback_speed_x4_48dp);
+                playbackState = PlaybackState.FORWARDx2;
+                break;
+            case FORWARDx2:
+                playbackSpeed = 500;
+                gpxReader.setSpeed(500);
+                button.setImageResource(R.drawable.ic_playback_speed_48dp);
+                playbackState = PlaybackState.FORWARDx4;
+                break;
+            case FORWARDx4:
+                playbackSpeed = 1000;
+                gpxReader.setSpeed(1000);
+                button.setImageResource(R.drawable.ic_playback_speed_x2_48dp);
+                playbackState = PlaybackState.NORMAL;
+                break;
+        }
+    }
+
     public void stopLocationListener(View view) {
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         if(stopLoc){
-           pauseRoute(locationManager);
+            pauseRoute(locationManager);
         } else{
-           trackRoute(locationManager);
+            trackRoute(locationManager);
 
             button.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -368,7 +412,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
-        gpxReader = new GPXReader(this,count);
+        gpxReader = new GPXReader(this,count,playbackSpeed);
         gpxReader.execute(routeInputStream);
 
 
@@ -604,6 +648,12 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         return new LatLng(coordsList.get(0),coordsList.get(1));
     }
+}
+
+enum PlaybackState{
+    NORMAL,
+    FORWARDx2,
+    FORWARDx4
 }
 
 

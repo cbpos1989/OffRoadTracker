@@ -31,6 +31,7 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
     private final String TAG = "GPXReader";
     FragmentActivity mapsActivity;
     private int count;
+    private int speed = 1000;
 
     public GPXReader(){
 
@@ -39,11 +40,13 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
     public GPXReader(MapsActivity mapsActivity, int count){
         this.mapsActivity = mapsActivity;
         this.count = count;
+
     }
 
-    public GPXReader(LoadMapsActivity mapsActivity, int count){
+    public GPXReader(LoadMapsActivity mapsActivity, int count, int speed){
         this.mapsActivity = mapsActivity;
         this.count = count;
+        setSpeed(speed);
     }
 
     @Override
@@ -62,30 +65,30 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
 
     @Override
     protected void onProgressUpdate(Integer... integer) {
-        Log.i(TAG,"Points: " + points.size());
-        timedOutput(1000);
+        timedOutput(getSpeed());
     }
 
     /**
      * Method to delay the drawing of polylines so as not the slow down the UI thread.
-     * @param time
+     * @param playbackSpeed
      */
-    public void timedOutput(final int time){
+    public void timedOutput(int playbackSpeed){
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(!isCancelled()) {
-                    Log.i(TAG, "Point: " + points.get(count));
+                if (!isCancelled()) {
+                    //Log.i(TAG, "Point: " + points.get(count));
                     //TODO Make Mapable Interface for both Activites to use these methods
-                    ((LoadMapsActivity)mapsActivity).onPauseRoute(count);
-                    ((LoadMapsActivity)mapsActivity).drawLine(points.get(count++));
+                    ((LoadMapsActivity) mapsActivity).onPauseRoute(count);
+                    ((LoadMapsActivity) mapsActivity).drawLine(points.get(count++));
                     if (count <= points.size() - 1) {
-                        timedOutput(time);
+                        timedOutput(getSpeed());
+                        Log.i(TAG,"Speed: " + speed);
                     }
                 }
             }
-        }, time);
+        }, getSpeed());
     }
 
     /**
@@ -213,5 +216,13 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
      */
     public void resetPoints(){
         points = null;
+    }
+
+    public int getSpeed(){
+        return speed;
+    }
+
+    public void setSpeed(int speed){
+        this.speed = speed;
     }
 }
