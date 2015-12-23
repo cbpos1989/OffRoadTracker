@@ -77,7 +77,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
     private PlaybackState playbackState = PlaybackState.NORMAL;
     private boolean routeFinished = true;
-    private int moveCameraFactor = 10;
+    private int moveLocationFactor = 15;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
     private int playbackSpeed = 1000;
@@ -273,16 +273,25 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
     @Override
     public void onLocationChanged(Location location) {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
 
         if(mLocation != null) {
             mLocation = location;
+
         }
 
-        //Only move camera after certain amount of location changes
-        if(points.size() % moveCameraFactor == 0) {
-            moveCamera(new LatLng(location.getLatitude(),location.getLongitude()));
+        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+
+        //Add Marker
+        if(moveLocationFactor == 15) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .title("You Are Here")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location_white_48dp));
+            Marker marker = mMap.addMarker(markerOptions);
+            mMarkerList.add(marker);
+            moveLocationFactor = 0;
+        } else {
+            moveLocationFactor++;
         }
 
     }
@@ -397,6 +406,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
+
         gpxReader.cancel(true);
         Log.i(TAG, gpxReader.isCancelled() + "");
 
@@ -408,6 +418,12 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     }
 
     private void trackRoute(LocationManager locationManager){
+
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
@@ -422,6 +438,13 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     }
 
     private void stopRoute(){
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
+        }
 
         gpxReader.cancel(true);
         count = 0;
