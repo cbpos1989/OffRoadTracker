@@ -39,12 +39,14 @@
         <activity
             android:name=".LoadMapsActivity"
             android:label="@string/title_activity_maps_load"
+            android:screenOrientation="portrait"
             >
 
         </activity>
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait"
             >
 
         </activity>
