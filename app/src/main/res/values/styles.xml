@@ -1,7 +1,10 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/primary_background</item>
+        <item name="colorPrimaryDark">@color/dark_primary_background_alt</item>
+        <item name="titleTextColor">@color/white_background</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -38,5 +41,42 @@
         <item name="android:paddingLeft">10dp</item>
         <item name="android:layout_marginBottom">5dp</item>
     </style>
+
+    <style name="RouteMenu" parent="Theme.AppCompat.Light">
+        <item name="android:background">@color/white_background</item>
+        <item name="android:textAppearance">@style/RouteMenuText</item>
+
+    </style>
+
+    <style name="RouteMenuText" parent="Base.TextAppearance.AppCompat">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/light_grey_text</item>
+    </style>
+
+    <style name="RouteMenuDetailsText" parent="Base.TextAppearance.AppCompat">
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/dark_grey_text</item>
+    </style>
+
+    <style name="Widget.Hike.Button" parent="android:Widget">
+        <item name="android:button">@drawable/hiker_toggle_bg</item>
+    </style>
+
+    <style name="hikeToggle" parent="@android:style/Theme.Black">
+        <item name="android:radioButtonStyle">@style/Widget.Hike.Button</item>
+    </style>
+
+    <style name="Widget.Bike.Button" parent="android:Widget">
+        <item name="android:button">@drawable/bike_toggle_bg</item>
+    </style>
+
+    <style name="bikeToggle" parent="@android:style/Theme.Black">
+        <item name="android:radioButtonStyle">@style/Widget.Bike.Button</item>
+    </style>
+
+
 
 </resources>

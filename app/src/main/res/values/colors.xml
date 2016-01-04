@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="primary_background" type="color">#009688</item>
+    <item name="dark_primary_background_alt" type="color">#00796B</item>
     <item name="dark_primary_background" type="color">#004D40</item>
     <item name="secondary_background" type="color">#E0F2F1</item>
     <item name="dark_secondary_background" type="color">#00695C</item>
-
-
+    <item name="white_background" type="color">#FFFFFF</item>
+    <item name="dark_grey_text" type="color">#212121</item>
+    <item name="light_grey_text" type="color">#E0E0E0</item>
 
     <integer-array name="app_colours">
         <item>@color/primary_background</item>
         <item>@color/dark_primary_background</item>
         <item>@color/secondary_background</item>
         <item>@color/dark_secondary_background</item>
+        <item>@color/white_background</item>
+        <item>@color/dark_grey_text</item>
+        <item>@color/light_grey_text</item>
     </integer-array>
 </resources>

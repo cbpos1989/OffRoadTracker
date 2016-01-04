@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import android.graphics.Color;
@@ -471,7 +472,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         Toast.makeText(this, "Route Finished", Toast.LENGTH_SHORT).show();
 
-        onBackPressed();
+        Intent routeEndedActivity = new Intent(this, RouteEndedActivity.class);
+        startActivity(routeEndedActivity);
     }
 
     @Override
