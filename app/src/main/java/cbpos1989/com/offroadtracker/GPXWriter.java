@@ -37,22 +37,22 @@ public class GPXWriter {
      */
     public static void writePath(File file, String n, List<Object> points) {
 
-        String header = "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.15.5\" version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n<trk>\n";
+        String header = "<gpx creator=\"Off-Road Tracker\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n";
         String metadata = " <metadata>\n" + "   <time>1900-01-01T00:00:00Z</time>" + "\n  </metadata>";
-        String name = " <trk>\n   <name>" + n + "</name>\n  <trkseg>\n";
+        String name = " <trk>\n  <name>" + n + "</name>\n  <trkseg>\n";
 
         String segments = "";
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 
         if (points.get(0) instanceof Location) {
-            metadata = " <metadata>\n" + "  <time>" + df.format(new Date(((Location)points.get(0)).getTime())) + "</time>\n </metadata>\n";
+            metadata = " <metadata>\n" + "  <time>" + df.format(new Date(((Location)points.get(0)).getTime())) + "Z</time>\n </metadata>\n";
             for (Object l : points) {
-                segments += "   <trkpt lat=\"" + ((Location)l).getLatitude() + "\" lon=\"" + ((Location)l).getLongitude() + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date(((Location)l).getTime())) + "</time>\n   </trkpt>\n";
+                segments += "   <trkpt lat=\"" + ((Location)l).getLatitude() + "\" lon=\"" + ((Location)l).getLongitude() + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date(((Location)l).getTime())) + "Z</time>\n   </trkpt>\n";
             }
         } else {
             for (Object l : points) {
-                segments += "   <trkpt lat=\"" + ((LatLng)l).latitude + "\" lon=\"" + ((LatLng)l).longitude + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date()) + "</time>\n   </trkpt>\n";
+                segments += "   <trkpt lat=\"" + ((LatLng)l).latitude + "\" lon=\"" + ((LatLng)l).longitude + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date()) + "Z</time>\n   </trkpt>\n";
             }
         }
 
