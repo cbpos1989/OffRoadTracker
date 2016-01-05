@@ -49,6 +49,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -466,13 +467,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
 
         MapsActivity.firstCoord = true;
-        File routeFile = new File(getFilesDir(), FILENAME);
-        routeFile.delete();
+        //File routeFile = new File(getFilesDir(), FILENAME);
+        //routeFile.delete();
         routeFinished = true;
 
         Toast.makeText(this, "Route Finished", Toast.LENGTH_SHORT).show();
 
         Intent routeEndedActivity = new Intent(this, RouteEndedActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("pointsList",points);
+
+        routeEndedActivity.putExtras(bundle);
         startActivity(routeEndedActivity);
     }
 

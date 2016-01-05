@@ -1,5 +1,6 @@
 package cbpos1989.com.offroadtracker;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,6 +37,12 @@ public class MainMenu extends AppCompatActivity {
 
         coordsField = (EditText) findViewById(R.id.coords_field);
         //coordsField.setText(" ");
+
+        //TODO Might add settings menu later will need display ActionBar
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.hide();
+        }
     }
 
     @Override

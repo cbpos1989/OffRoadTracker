@@ -14,12 +14,14 @@
 
     <EditText
         style="@style/RouteMenuText"
+        android:id="@+id/route_name_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:hint="@string/edit_route_name_hint"/>
     <EditText
         style="@style/RouteMenuText"
+        android:id="@+id/route_comment_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -68,19 +70,21 @@
         android:layout_marginBottom="@dimen/activity_vertical_margin">
 
         <RadioButton
-            android:id="@+id/hikerToggleButton"
+            android:id="@+id/hikerRadioButton"
+            android:layout_margin="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/hikeToggle"
-            android:background="@drawable/hiker_toggle_bg"
+            android:background="@drawable/ic_route_radio_bg"
+            android:button="@drawable/ic_route_radio_hiker"
             android:checked="true" />
 
         <RadioButton
-            android:id="@+id/bikeToggleButton"
+            android:id="@+id/bikeRadioButton"
+            android:layout_margin="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/bikeToggle"
-            android:background="@drawable/bike_toggle_bg"
+            android:background="@drawable/ic_route_radio_bg"
+            android:button="@drawable/ic_route_radio_bike"
             android:checked="true" />
 
     </RadioGroup>
@@ -100,16 +104,13 @@
             android:padding="5dp"
             android:src="@drawable/ic_public_black_48dp"/>
 
-        <TextView
-            style="@style/RouteMenuDetailsText"
-            android:gravity="center_vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/public_map_toggle"/>
-
-        <RadioButton
+        <CheckBox
+            android:id="@+id/publicMapCheck"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="@string/public_map_toggle"
+            android:textSize="24sp"
+            android:checked="false" />
 
     </LinearLayout>
 
@@ -127,13 +128,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/save_button" />
+            android:text="@string/save_button"
+            android:onClick="saveRoute"/>
         <Button
             style="@style/MainButtons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/discard_button" />
+            android:text="@string/discard_button"
+            android:onClick="discardRoute"/>
 
     </LinearLayout>
 

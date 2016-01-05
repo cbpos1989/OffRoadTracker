@@ -18,7 +18,7 @@
         <item name="android:textColor">@color/dark_secondary_background</item>
     </style>
 
-    <style name="MainButtons" parent="Base.V7.Theme.AppCompat.Light">
+    <style name="MainButtons" parent="Theme.AppCompat.Light">
         <item name="android:background">@drawable/button_background</item>
         <item name="android:textSize">24dp</item>
         <item name="android:textColor">@color/primary_background</item>
@@ -44,9 +44,10 @@
 
     <style name="RouteMenu" parent="Theme.AppCompat.Light">
         <item name="android:background">@color/white_background</item>
+        <item name="android:title">@string/load_route_button</item>
         <item name="android:textAppearance">@style/RouteMenuText</item>
-
     </style>
+
 
     <style name="RouteMenuText" parent="Base.TextAppearance.AppCompat">
         <item name="android:textSize">32sp</item>
@@ -60,23 +61,4 @@
         <item name="android:textSize">22sp</item>
         <item name="android:textColor">@color/dark_grey_text</item>
     </style>
-
-    <style name="Widget.Hike.Button" parent="android:Widget">
-        <item name="android:button">@drawable/hiker_toggle_bg</item>
-    </style>
-
-    <style name="hikeToggle" parent="@android:style/Theme.Black">
-        <item name="android:radioButtonStyle">@style/Widget.Hike.Button</item>
-    </style>
-
-    <style name="Widget.Bike.Button" parent="android:Widget">
-        <item name="android:button">@drawable/bike_toggle_bg</item>
-    </style>
-
-    <style name="bikeToggle" parent="@android:style/Theme.Black">
-        <item name="android:radioButtonStyle">@style/Widget.Bike.Button</item>
-    </style>
-
-
-
 </resources>

@@ -37,26 +37,31 @@ public class GPXWriter {
      */
     public static void writePath(File file, String n, List<Object> points) {
 
-        String header = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?><gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.15.5\" version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk>\n";
-        String name = "<name>" + n + "</name>\n<trkseg>\n";
+        String header = "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.15.5\" version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n<trk>\n";
+        String metadata = " <metadata>\n" + "   <time>1900-01-01T00:00:00Z</time>" + "\n  </metadata>";
+        String name = " <trk>\n   <name>" + n + "</name>\n  <trkseg>\n";
 
         String segments = "";
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+
         if (points.get(0) instanceof Location) {
+            metadata = " <metadata>\n" + "  <time>" + df.format(new Date(((Location)points.get(0)).getTime())) + "</time>\n </metadata>\n";
             for (Object l : points) {
-                segments += "<trkpt lat=\"" + ((Location)l).getLatitude() + "\" lon=\"" + ((Location)l).getLongitude() + "\">\n<ele>0.0</ele>\n<time>" + df.format(new Date(((Location)l).getTime())) + "</time>\n</trkpt>\n";
+                segments += "   <trkpt lat=\"" + ((Location)l).getLatitude() + "\" lon=\"" + ((Location)l).getLongitude() + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date(((Location)l).getTime())) + "</time>\n   </trkpt>\n";
             }
         } else {
             for (Object l : points) {
-                segments += "<trkpt lat=\"" + ((LatLng)l).latitude + "\" lon=\"" + ((LatLng)l).longitude + "\">\n<ele>0.0</ele>\n<time>" + df.format(new Date()) + "</time>\n</trkpt>\n";
+                segments += "   <trkpt lat=\"" + ((LatLng)l).latitude + "\" lon=\"" + ((LatLng)l).longitude + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date()) + "</time>\n   </trkpt>\n";
             }
         }
 
-        String footer = "</trkseg>\n</trk>\n</gpx>";
+        String footer = "  </trkseg>\n </trk>\n</gpx>";
 
         try {
             FileWriter writer = new FileWriter(file, true);
             writer.append(header);
+            writer.append(metadata);
             writer.append(name);
             writer.append(segments);
             writer.append(footer);

@@ -9,6 +9,7 @@
     <string name="action_settings">Settings</string>
     <string name="open_map_button">Open Map</string>
     <string name="load_route_button">Load Route</string>
+    <string name="save_route_button">Save Route</string>
     <string name="save_button">Save</string>
     <string name="discard_button">Discard</string>
     <string name="interest">Point of Interest</string>

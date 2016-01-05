@@ -1,6 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/MainMenu"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -9,7 +8,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="cbpos1989.com.offroadtracker.MainMenu">
+    tools:context="cbpos1989.com.offroadtracker.MainMenu"
+    style="@style/MainMenu">
 
     <LinearLayout
         android:layout_width="wrap_content"
