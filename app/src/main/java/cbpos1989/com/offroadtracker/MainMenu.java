@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainMenu extends AppCompatActivity {
     private final String TAG = "MainMenu";
@@ -27,6 +28,7 @@ public class MainMenu extends AppCompatActivity {
     private final String USER_PREFERENCES = "userOptions";
     private EditText coordsField;
     private SharedPreferences sharedpreferences;
+    private ArrayList<Object> points = new ArrayList<Object>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,20 @@ public class MainMenu extends AppCompatActivity {
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         if(actionBar != null) {
             actionBar.hide();
+        }
+
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+
+        if(bundle != null) {
+            Log.i(TAG, "Bundle not null");
+            points = (ArrayList<Object>) bundle.getSerializable("pointsList");
+            if(points != null) {
+                Log.i(TAG, "Points = " + points.size());
+            } else {
+                points = new ArrayList<Object>();
+            }
         }
     }
 
@@ -92,7 +108,12 @@ public class MainMenu extends AppCompatActivity {
         editor.commit();
 
         Intent mapActivity = new Intent(this, MapsActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("pointsList", points);
+
+        mapActivity.putExtras(bundle);
         startActivity(mapActivity);
+
 
     }
 

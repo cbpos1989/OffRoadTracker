@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ public class RouteEndedActivity extends AppCompatActivity {
     private final String FILETYPE = ".gpx";
     private File routeFile;
     private ArrayList<Object> points = new ArrayList<Object>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

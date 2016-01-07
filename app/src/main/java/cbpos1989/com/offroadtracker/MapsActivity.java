@@ -1,5 +1,6 @@
 package cbpos1989.com.offroadtracker;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -46,6 +47,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.InputStream;
@@ -55,7 +57,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -68,10 +73,9 @@ import java.util.TimeZone;
 public class MapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener, onPauseRoute{
     private static final String TAG = "MapsActivity";
     private final String FILENAME = "route.gpx";
-    private final String USER_PREFERENCES = "userOptions";
+    private final String USER_PREFERENCES = "saved_state";
     private String FIREBASE_URL;
     private final String FIREBASE_ROOT_NODE = "markers";
-    private String userChoice;
     SharedPreferences sharedPref;
 
     private Firebase mFirebase;
@@ -94,6 +98,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private File routeFile;
     private InputStream routeInputStream;
     private int count;
+    private Bundle mSavedInstanceState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,11 +106,24 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         setContentView(R.layout.activity_maps);
 
         //Get user choice to either display demo route or live route
-        SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
-        userChoice = sharedpreferences.getString("UserChoice", null);
-        String coords = sharedpreferences.getString("Coords",null);
+        sharedPref = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        String coords = sharedPref.getString("Coords",null);
 
-        Log.i(TAG,"Coords from pref: " + coords);
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        Log.i(TAG, "RouteFinshed = " + routeFinished);
+
+            if(bundle != null) {
+                points = (ArrayList<Object>) bundle.getSerializable("pointsList");
+                if(points != null) {
+                    Log.i(TAG, "Points = " + points.size());
+                }  else {
+                    points = new ArrayList<Object>();
+                }
+            }
+
+
+        //Log.i(TAG,"Coords from pref: " + coords);
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
@@ -159,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
      * @param file takes in file of type .gpx
      */
     private void loadCurrentRoute(File file){
-        points.clear();
+        //points.clear();
 
         gpxReader.readPath(file);
 
@@ -205,17 +223,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             firstCoord = true;
         }
 
-        //Save value of count so load route can start at point it ended at
-        if(userChoice.equals("Load")) {
-
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.clear();
-            editor.putInt("point_count", count);
-            editor.commit();
-        }
-
-
-        //gpxReader.cancel(true);
         super.onDestroy();
     }
 
@@ -234,6 +241,23 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         } catch (Exception e) {
             Log.e("WritingFile", "Not completed writing" + file.getName());
         }
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+
+        if(!routeFinished) {
+            Intent mainMenuActivity = new Intent(this, MainMenu.class);
+            mainMenuActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("pointsList", points);
+            mainMenuActivity.putExtras(bundle);
+            startActivity(mainMenuActivity);
+            finish();
+        }
+
+
     }
 
     /**
@@ -291,6 +315,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if(points.size() % moveCameraFactor == 0) {
             moveCamera(new LatLng(location.getLatitude(),location.getLongitude()));
         }
+
 
     }
 
@@ -365,10 +390,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             firstCoord = false;
         }
 
-        if (userChoice.equals("Load")) {
-            points.add(latlng);
-        }
-
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currCoordinates, 18));
         route = mMap.addPolyline(new PolylineOptions().geodesic(true)
@@ -407,18 +428,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        if(userChoice.equals("Live")) {
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-        } else {
-            gpxReader.cancel(true);
-            Log.i(TAG, gpxReader.isCancelled() + "");
 
-            gpxReader = null;
-
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
         }
 
         button.setImageResource(R.drawable.ic_navigation_red_48dp);
@@ -430,17 +444,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        if (userChoice.equals("Live")) {
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
-        } else {
-            routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
-            gpxReader = new GPXReader(this,count);
-            gpxReader.execute(routeInputStream);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
         }
+
 
         button.setImageResource(R.drawable.ic_pause_red_48dp);
 
@@ -448,28 +457,22 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     }
 
     private void stopRoute(){
-        if (userChoice.equals("Live")) {
-            LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-            try {
-                locationManager.removeUpdates(this);
-            } catch (SecurityException se) {
-                se.printStackTrace();
-            }
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-            liveRouteActive = false;
-        } else {
-            gpxReader.cancel(true);
-            count = 0;
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.clear();
-            editor.commit();
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException se) {
+            se.printStackTrace();
         }
 
+        liveRouteActive = false;
+
+
+        //Reset Map
         MapsActivity.firstCoord = true;
-        //File routeFile = new File(getFilesDir(), FILENAME);
-        //routeFile.delete();
         routeFinished = true;
+        mMap.clear();
 
         Toast.makeText(this, "Route Finished", Toast.LENGTH_SHORT).show();
 
@@ -560,42 +563,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mFirebase.push().setValue(locations);
     }
 
-    private void initializeMarkers(){
-        mFirebase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                Log.i(TAG, "Data Count: " + snapshot.getChildrenCount());
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    //Get data from Firebase
-                    Map data = (Map) dataSnapshot.getValue();
-                    String timestamp = (String) data.get("timestamp");
-                    String description = (String) data.get("description");
-                    String markerType = (String) data.get("marker_type");
 
-                    Map coordinate = (HashMap) data.get("location");
-                    double latitude = (double) (coordinate.get("latitude"));
-                    double longitude = (double) (coordinate.get("longitude"));
-
-                    LatLng latLng = new LatLng(latitude, longitude);
-
-                    //Add Marker
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(latLng)
-                            .title(description)
-                            .icon(BitmapDescriptorFactory.fromResource(assignBitmap(markerType)));
-                    Marker marker = mMap.addMarker(markerOptions);
-                    mMarkerList.add(marker);
-                    Log.i(TAG, "Markers on Map: " + mMarkerList.size());
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-    }
 
     private void drawMarker(){
         Log.i(TAG, "Time: " + mLastUpdateTime);

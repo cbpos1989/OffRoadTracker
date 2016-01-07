@@ -46,11 +46,13 @@ public class GPXWriter {
 
 
         if (points.get(0) instanceof Location) {
+            Log.i(TAG,"hERE LOCATION");
             metadata = " <metadata>\n" + "  <time>" + df.format(new Date(((Location)points.get(0)).getTime())) + "Z</time>\n </metadata>\n";
             for (Object l : points) {
                 segments += "   <trkpt lat=\"" + ((Location)l).getLatitude() + "\" lon=\"" + ((Location)l).getLongitude() + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date(((Location)l).getTime())) + "Z</time>\n   </trkpt>\n";
             }
         } else {
+            Log.i(TAG,"hERE OBJECT");
             for (Object l : points) {
                 segments += "   <trkpt lat=\"" + ((LatLng)l).latitude + "\" lon=\"" + ((LatLng)l).longitude + "\">\n    <ele>0.0</ele>\n    <time>" + df.format(new Date()) + "Z</time>\n   </trkpt>\n";
             }
