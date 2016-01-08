@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -82,8 +83,11 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
     private int playbackSpeed = 1000;
+    private String mChosenRoute;
 
     private File routeFile;
+    private File mChosenFile;
+    private File mPath = new File(Environment.getExternalStorageDirectory() + "//off-road_tracker_routes//");
     private InputStream routeInputStream;
     private int count;
     private boolean stopLoc;
@@ -95,7 +99,8 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         //Get user choice to either display demo route or live route
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
-        String coords = sharedpreferences.getString("Coords",null);
+        String coords = sharedpreferences.getString("Coords", null);
+        mChosenRoute = sharedpreferences.getString("chosenRoute", null);
         
         Log.i(TAG,"Coords from pref: " + coords);
 
@@ -144,6 +149,9 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         //Loads internal GPX File
         routeFile = new File(this.getFilesDir(), FILENAME);
         loadCurrentRoute(routeFile);
+
+        //Loads chosen GPX File
+        mChosenFile = new File(mPath, mChosenRoute);
     }
 
     /**
@@ -196,6 +204,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         if(routeFinished) {
             firstCoord = true;
+            mChosenFile = null;
         }
 
         //Save value of count so load route can start at point it ended at
@@ -428,10 +437,9 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
+        //routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
         gpxReader = new GPXReader(this,count,playbackSpeed);
-        gpxReader.execute(routeInputStream);
-
+        gpxReader.execute(mChosenFile);
 
         button.setImageResource(R.drawable.ic_pause_red_48dp);
 
@@ -463,152 +471,19 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         onBackPressed();
     }
 
+    //TODO Might use in the future
     @Override
     public void onMapLongClick(final LatLng latLng) {
-
-        // Init the dialog object
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        // Set up the input
-        LayoutInflater factory = LayoutInflater.from(getApplicationContext());
-
-        final View v = factory.inflate(R.layout.dialog_layout, null);
-        final EditText input = (EditText) v.findViewById(R.id.dialog_edit_text);
-        final RadioGroup radioGroup = (RadioGroup) v.findViewById(R.id.radio_group_dialog);
-
-        builder.setView(v);
-
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Toast.makeText(getApplicationContext(), "in method", Toast.LENGTH_SHORT).show();
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Date date = new Date();
-                mLastUpdateTime = dateFormat.format(date).toString();
-                String description;
-                description = input.getText().toString();
-
-                String markerType = "point_of_interest";
-
-                RadioButton checkedButton = (RadioButton) v.findViewById(radioGroup.getCheckedRadioButtonId());
-
-                switch (checkedButton.getId()) {
-                    case R.id.interest_radio_button:
-                        markerType = "point_of_interest";
-                        break;
-                    case R.id.warning_radio_button:
-                        markerType = "warning";
-                        break;
-                    case R.id.trail_start_radio_button:
-                        markerType = "trail_start";
-                        break;
-                    case R.id.obstacle_radio_button:
-                        markerType = "obstacle";
-                        break;
-                    case R.id.dead_end_radio_button:
-                        markerType = "dead_end";
-                        break;
-                }
-
-                saveToFirebase(latLng, description, markerType);
-                drawMarker();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
     }
 
     public void goBack(View v){
         onBackPressed();
     }
 
-    private void saveToFirebase(LatLng latLng, String description, String markerType){
-        Map locations = new HashMap();
-        locations.put("timestamp",mLastUpdateTime);
-        locations.put("marker_type",markerType);
-        locations.put("description", description);
-        Map coordinate = new HashMap();
-        coordinate.put("latitude",latLng.latitude);
-        coordinate.put("longitude",latLng.longitude);
-        locations.put("location",coordinate);
-        mFirebase.push().setValue(locations);
-    }
-
-    private void drawMarker(){
-        Log.i(TAG, "Time: " + mLastUpdateTime);
-        Query queryRef = mFirebase.orderByChild("timestamp").startAt(mLastUpdateTime).limitToFirst(1);
-        ChildEventListener childEventListener = queryRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                //Get data from Firebase
-                Map data = (Map) dataSnapshot.getValue();
-                String timestamp = (String) data.get("timestamp");
-                String description = (String) data.get("description");
-                String markerType = (String) data.get("marker_type");
-
-                Map coordinate = (HashMap) data.get("location");
-                double latitude = (double) (coordinate.get("latitude"));
-                double longitude = (double) (coordinate.get("longitude"));
-
-                LatLng latLng = new LatLng(latitude, longitude);
-
-                //Add Marker
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(latLng)
-                        .title(description)
-                        .icon(BitmapDescriptorFactory.fromResource(assignBitmap(markerType)));
-                Marker marker = mMap.addMarker(markerOptions);
-                mMarkerList.add(marker);
-                Log.i(TAG, "Markers on Map: " + mMarkerList.size());
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-    }
-
-    private int assignBitmap(String markerType){
-        switch (markerType){
-            case "point_of_interest":   return R.drawable.ic_point_of_interest_48dp;
-            case "warning": return R.drawable.ic_warning_48dp;
-            case "trail_start":   return R.drawable.ic_trail_start_48dp;
-            case "obstacle": return R.drawable.ic_obstacle_48dp;
-            case "dead_end":   return R.drawable.ic_dead_end_48dp;
-        }
-        return 0;
-    }
-
     @Override
     public void onPauseRoute(Integer count) {
         this.count = count;
     }
-
 
     /**
      * Dialog that will allow the user to stop tracking there route.

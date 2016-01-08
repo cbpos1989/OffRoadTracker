@@ -2,10 +2,12 @@ package cbpos1989.com.offroadtracker;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -29,6 +32,12 @@ public class MainMenu extends AppCompatActivity {
     private EditText coordsField;
     private SharedPreferences sharedpreferences;
     private ArrayList<Object> points = new ArrayList<Object>();
+
+    private String[] mFileLlist;
+    private File mPath = new File(Environment.getExternalStorageDirectory() + "//off-road_tracker_routes//");
+    private String mChosenFile;
+    private static final String FTYPE = ".gpx";
+    private static final int DIALOG_LOAD_FILE = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,8 @@ public class MainMenu extends AppCompatActivity {
             actionBar.hide();
         }
 
+        //Load in gpx files for use with load route map
+        loadFileList();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -119,12 +130,88 @@ public class MainMenu extends AppCompatActivity {
 
     public void onClickLoadRoute(View view){
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString("UserChoice","Load");
+        editor.putString("UserChoice", "Load");
         editor.commit();
 
-        Intent mapActivity = new Intent(this, LoadMapsActivity.class);
-        startActivity(mapActivity);
+        onCreateDialog(DIALOG_LOAD_FILE);
 
+
+
+    }
+
+    /**
+     * Loads all gpx files present in app directory used for storing routes.
+     * @author schwiz (stackoverflow)
+     */
+    private void loadFileList(){
+        try{
+            mPath.mkdirs();
+        } catch (SecurityException e) {
+            Log.e(TAG,"unable to write on the sd card " + e.toString());
+        }
+
+        if (mPath.exists()) {
+            FilenameFilter filter = new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String filename) {
+                    File sel = new File(dir, filename);
+                    return filename.contains(FTYPE) || sel.isDirectory();
+                }
+            };
+            mFileLlist = mPath.list(filter);
+        } else {
+            mFileLlist = new String[0];
+        }
+    }
+
+    /**
+     *  Create dialog for the user to chose gpx file to load.
+     * @param id
+     * @return Dialog
+     * @author schwiz (stackoverflow)
+     */
+    @Override
+    protected Dialog onCreateDialog(int id){
+        Dialog dialog = null;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        switch (id) {
+            case DIALOG_LOAD_FILE: builder.setTitle("Chose your Route");
+                if (mFileLlist == null) {
+                    Log.e(TAG, "Showing file picker before loading the file list");
+                    dialog = builder.create();
+                    return dialog;
+                }
+                builder.setItems(mFileLlist, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        mChosenFile = mFileLlist[which];
+
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.clear();
+                        editor.putString("chosenRoute", mChosenFile);
+                        editor.commit();
+
+                        Intent mapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
+                        startActivity(mapActivity);
+                    }
+                });
+                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent mapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
+                        startActivity(mapActivity);
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                break;
+        }
+        dialog = builder.show();
+        return dialog;
     }
 
     public boolean onKeyDown(int keyCode,KeyEvent event){
