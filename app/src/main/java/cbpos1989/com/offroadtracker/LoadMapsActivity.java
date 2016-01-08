@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
@@ -95,7 +96,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         //Get user choice to either display demo route or live route
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
         String coords = sharedpreferences.getString("Coords",null);
-
+        
         Log.i(TAG,"Coords from pref: " + coords);
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);

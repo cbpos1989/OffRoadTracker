@@ -96,9 +96,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private static LatLng prevCoordinates;
 
     private File routeFile;
-    private InputStream routeInputStream;
-    private int count;
-    private Bundle mSavedInstanceState;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,19 +107,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //Get user choice to either display demo route or live route
         sharedPref = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
         String coords = sharedPref.getString("Coords",null);
+        routeFinished = sharedPref.getBoolean("routeState",true);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         Log.i(TAG, "RouteFinshed = " + routeFinished);
 
-            if(bundle != null) {
-                points = (ArrayList<Object>) bundle.getSerializable("pointsList");
-                if(points != null) {
-                    Log.i(TAG, "Points = " + points.size());
-                }  else {
-                    points = new ArrayList<Object>();
-                }
-            }
+
 
 
         //Log.i(TAG,"Coords from pref: " + coords);
@@ -135,6 +128,20 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         mGoogleApiClient.connect();
         setUpMapIfNeeded();
 
+        //Get points from saved state; clear map if new route
+        if(!routeFinished) {
+            if (bundle != null) {
+                points = (ArrayList<Object>) bundle.getSerializable("pointsList");
+                if (points != null) {
+                    Log.i(TAG, "Points = " + points.size());
+                } else {
+                    points = new ArrayList<Object>();
+                }
+            }
+        } else {
+            mMap.clear();
+        }
+
         //Setting up Firebase
         FIREBASE_URL = getString(R.string.firebase_url);
         Firebase.setAndroidContext(this);
@@ -143,8 +150,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //initializeMarkers();
 
        //Log.i("drawLine","Value of firstCoord" + firstCoord);
-        routeFinished = false;
-        liveRouteActive = true;
+
         //Log.i(TAG,"FirstCoord: " + firstCoord);
         //Move camera and set coordinates to last known position
         try {
@@ -167,8 +173,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         gpxReader = new GPXReader();
 
         //Loads internal GPX File
-        routeFile = new File(this.getFilesDir(), FILENAME);
-        loadCurrentRoute(routeFile);
+        if(!routeFinished) {
+            routeFile = new File(this.getFilesDir(), FILENAME);
+            loadCurrentRoute(routeFile);
+        }
     }
 
     /**
@@ -213,6 +221,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             se.printStackTrace();
         }
 
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.putBoolean("routeState", routeFinished);
+        editor.commit();
+        Log.i(TAG,"Route State Saved");
+
         //Load Internal GPX File
         if (!routeFinished) {
             routeFile = new File(this.getFilesDir(), FILENAME);
@@ -256,8 +270,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             startActivity(mainMenuActivity);
             finish();
         }
-
-
     }
 
     /**
@@ -442,6 +454,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     private void trackRoute(LocationManager locationManager){
 
+        routeFinished = false;
+        liveRouteActive = true;
+
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
         try {
@@ -465,8 +480,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         } catch (SecurityException se) {
             se.printStackTrace();
         }
-
-        liveRouteActive = false;
 
 
         //Reset Map
@@ -629,7 +642,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     @Override
     public void onPauseRoute(Integer count) {
-        this.count = count;
     }
 
 
