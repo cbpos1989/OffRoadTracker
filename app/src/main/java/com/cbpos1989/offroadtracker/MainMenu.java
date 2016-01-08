@@ -1,6 +1,5 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -16,14 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MainMenu extends AppCompatActivity {
     private final String TAG = "MainMenu";

@@ -1,4 +1,4 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
 import android.content.Intent;
 import android.os.Environment;
@@ -9,12 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class RouteEndedActivity extends AppCompatActivity {
     private final String TAG = "RouteEndedActivity";

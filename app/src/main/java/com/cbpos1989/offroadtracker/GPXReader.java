@@ -1,7 +1,5 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -16,7 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Class that reads a GPX file and parses the Latitude and Longitude into an ArrayList of LatLng

@@ -1,10 +1,8 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
 import java.io.File;
 import android.location.Location;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 

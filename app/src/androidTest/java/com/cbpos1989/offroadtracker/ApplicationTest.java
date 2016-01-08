@@ -1,4 +1,4 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

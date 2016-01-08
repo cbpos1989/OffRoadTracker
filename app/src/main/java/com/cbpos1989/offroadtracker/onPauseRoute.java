@@ -1,4 +1,4 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
 /**
  * Created by Colm on 22/12/2015.

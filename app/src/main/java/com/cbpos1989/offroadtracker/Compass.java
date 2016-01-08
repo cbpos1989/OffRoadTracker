@@ -1,6 +1,5 @@
-package cbpos1989.com.offroadtracker;
+package com.cbpos1989.offroadtracker;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -8,7 +7,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

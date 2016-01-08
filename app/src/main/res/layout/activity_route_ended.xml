@@ -10,7 +10,7 @@
     android:orientation="vertical"
     android:gravity="top"
     style="@style/RouteMenu"
-    tools:context="cbpos1989.com.offroadtracker.RouteEndedActivity">
+    tools:context="com.cbpos1989.offroadtracker.RouteEndedActivity">
 
     <EditText
         style="@style/RouteMenuText"
