@@ -51,7 +51,7 @@
 
     <style name="RouteMenuText" parent="Base.TextAppearance.AppCompat">
         <item name="android:textSize">32sp</item>
-        <item name="android:textColor">@color/light_grey_text</item>
+        <item name="android:textColor">@color/dark_grey_text</item>
     </style>
 
     <style name="RouteMenuDetailsText" parent="Base.TextAppearance.AppCompat">

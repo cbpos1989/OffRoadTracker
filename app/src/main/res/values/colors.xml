@@ -7,6 +7,7 @@
     <item name="dark_secondary_background" type="color">#00695C</item>
     <item name="white_background" type="color">#FFFFFF</item>
     <item name="dark_grey_text" type="color">#212121</item>
+    <item name="medium_grey_text" type="color">#ABABAB</item>
     <item name="light_grey_text" type="color">#E0E0E0</item>
 
     <integer-array name="app_colours">
@@ -16,6 +17,7 @@
         <item>@color/dark_secondary_background</item>
         <item>@color/white_background</item>
         <item>@color/dark_grey_text</item>
+        <item>@color/medium_grey_text</item>
         <item>@color/light_grey_text</item>
     </integer-array>
 </resources>

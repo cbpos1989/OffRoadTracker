@@ -131,7 +131,10 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 }
             }
         } else {
-            mMap.clear();
+            if(mMap != null){
+                mMap.clear();
+            }
+
         }
 
         //Setting up Firebase
