@@ -88,6 +88,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         mChosenRoute = sharedpreferences.getString("chosenRoute", null);
         
         Log.i(TAG,"Coords from pref: " + coords);
+        Log.i(TAG,"mChosenRoute = " + mChosenRoute);
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 

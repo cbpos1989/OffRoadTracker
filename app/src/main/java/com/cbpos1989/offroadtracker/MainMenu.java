@@ -31,6 +31,7 @@ public class MainMenu extends AppCompatActivity {
     private String[] mFileLlist;
     private File mPath = new File(Environment.getExternalStorageDirectory() + "//off-road_tracker_routes//");
     private String mChosenFile;
+    private String mChosenRoute;
     private static final String FTYPE = ".gpx";
     private static final int DIALOG_LOAD_FILE = 1000;
 
@@ -39,12 +40,11 @@ public class MainMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         //Log.i(TAG, "In Main Menu");
-        sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
 
         coordsField = (EditText) findViewById(R.id.coords_field);
         //coordsField.setText(" ");
 
-        //TODO Might add settings menu later will need display ActionBar
+        //TODO Might add settings menu later will need to display ActionBar
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         if(actionBar != null) {
             actionBar.hide();
@@ -56,6 +56,8 @@ public class MainMenu extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
 
+        //Load List of points feom the live route to maintain users current route
+        //TODO Convert GPX data to JSON and save info to SQLite
         if(bundle != null) {
             Log.i(TAG, "Bundle not null");
             points = (ArrayList<Object>) bundle.getSerializable("pointsList");
@@ -68,11 +70,21 @@ public class MainMenu extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume(){
+        super.onResume();
+        getPreferences();
+    }
+
+    @Override
     protected void onDestroy(){
-        File routeFile = new File(this.getFilesDir(), FILENAME);
-        boolean routeDeleted = routeFile.delete();
-        Log.i("Deleted", "Route Deleted");
         super.onDestroy();
+    }
+
+    private void getPreferences(){
+        sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+
+        mChosenRoute = sharedpreferences.getString("chosenRoute", null);
+        Log.i(TAG,"mChosenRoute = " + mChosenRoute);
     }
 
     @Override
@@ -124,12 +136,12 @@ public class MainMenu extends AppCompatActivity {
     }
 
     public void onClickLoadRoute(View view){
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString("UserChoice", "Load");
-        editor.commit();
-
-        onCreateDialog(DIALOG_LOAD_FILE);
-
+        if(mChosenRoute != null){
+            Intent loadMapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
+            startActivity(loadMapActivity);
+        } else {
+            onCreateDialog(DIALOG_LOAD_FILE);
+        }
 
 
     }
@@ -186,15 +198,15 @@ public class MainMenu extends AppCompatActivity {
                         editor.putString("chosenRoute", mChosenFile);
                         editor.commit();
 
-                        Intent mapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
-                        startActivity(mapActivity);
+                        Intent loadMapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
+                        startActivity(loadMapActivity);
                     }
                 });
                 builder.setPositiveButton(R.string.positive_button_message_alt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent mapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
-                        startActivity(mapActivity);
+                        Intent loadMapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
+                        startActivity(loadMapActivity);
                     }
                 });
                 builder.setNegativeButton(R.string.negative_button_message_alt, new DialogInterface.OnClickListener() {
@@ -220,6 +232,10 @@ public class MainMenu extends AppCompatActivity {
                     finish();
                     File routeFile = new File(getFilesDir(), FILENAME);
                     boolean routeDeleted = routeFile.delete();
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.remove("chosenRoute");
+                    editor.commit();
+                    Log.i(TAG, "Route Deleted");
                     System.exit(0);
                 }
             });
