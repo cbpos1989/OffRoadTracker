@@ -24,9 +24,12 @@
     <string name="stop_tracking_message">Do you want to stop tracking route?</string>
     <string name="positive_button_message">Yes</string>
     <string name="negative_button_message">No</string>
+    <string name="positive_button_message_alt">Open</string>
+    <string name="negative_button_message_alt">Close</string>
     <string name="dist_text_view">Dist: 25.2 km</string>
     <string name="time_text_view">Time: 01:29:56</string>
     <string name="elev_gain_text_view">Elev Gain: 1,116m</string>
     <string name="max_elev_text_view">Max Gain: 567m</string>
     <string name="public_map_toggle">Upload to Public Map</string>
+    <string name="choose_route_menu">Choose Your Route</string>
 </resources>

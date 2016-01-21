@@ -171,7 +171,7 @@ public class MainMenu extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         switch (id) {
-            case DIALOG_LOAD_FILE: builder.setTitle("Chose your Route");
+            case DIALOG_LOAD_FILE: builder.setTitle(R.string.choose_route_menu);
                 if (mFileLlist == null) {
                     Log.e(TAG, "Showing file picker before loading the file list");
                     dialog = builder.create();
@@ -190,14 +190,14 @@ public class MainMenu extends AppCompatActivity {
                         startActivity(mapActivity);
                     }
                 });
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(R.string.positive_button_message_alt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent mapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
                         startActivity(mapActivity);
                     }
                 });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(R.string.negative_button_message_alt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 

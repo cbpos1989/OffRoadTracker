@@ -136,7 +136,11 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         loadCurrentRoute(routeFile);
 
         //Loads chosen GPX File
-        mChosenFile = new File(mPath, mChosenRoute);
+        if(mChosenRoute != null) {
+            mChosenFile = new File(mPath, mChosenRoute);
+        } else {
+            Toast.makeText(this,"No Route Chosen, Choose a route from the route menu",Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -385,15 +389,19 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         if(stopLoc){
             pauseRoute(locationManager);
         } else{
-            trackRoute(locationManager);
+            if(mChosenFile != null) {
+                trackRoute(locationManager);
 
-            button.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showDialog();
-                    return false;
-                }
-            });
+                button.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        showDialog();
+                        return false;
+                    }
+                });
+            } else {
+                Toast.makeText(this,"No Route Chosen, Choose a route from the route menu",Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -422,7 +430,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
-        //routeInputStream = getResources().openRawResource(R.raw.slievethoul_mtb_trail);
+
         gpxReader = new GPXReader(this,count,playbackSpeed);
         gpxReader.execute(mChosenFile);
 
