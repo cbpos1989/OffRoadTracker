@@ -1,12 +1,16 @@
 package com.cbpos1989.offroadtracker;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -28,12 +33,13 @@ public class MainMenu extends AppCompatActivity {
     private SharedPreferences sharedpreferences;
     private ArrayList<Object> points = new ArrayList<Object>();
 
-    private String[] mFileLlist;
+    private String[] mFileList;
     private File mPath = new File(Environment.getExternalStorageDirectory() + "//off-road_tracker_routes//");
     private String mChosenFile;
     private String mChosenRoute;
     private static final String FTYPE = ".gpx";
     private static final int DIALOG_LOAD_FILE = 1000;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +56,9 @@ public class MainMenu extends AppCompatActivity {
             actionBar.hide();
         }
 
-        //Load in gpx files for use with load route map
-        loadFileList();
+        checkPermissions();
+
+
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -84,7 +91,7 @@ public class MainMenu extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
 
         mChosenRoute = sharedpreferences.getString("chosenRoute", null);
-        Log.i(TAG,"mChosenRoute = " + mChosenRoute);
+        Log.i(TAG, "mChosenRoute = " + mChosenRoute);
     }
 
     @Override
@@ -162,12 +169,71 @@ public class MainMenu extends AppCompatActivity {
                 @Override
                 public boolean accept(File dir, String filename) {
                     File sel = new File(dir, filename);
+                    Log.i(TAG,"File = " + filename.contains(FTYPE));
                     return filename.contains(FTYPE) || sel.isDirectory();
                 }
             };
-            mFileLlist = mPath.list(filter);
+            mFileList = mPath.list(filter);
+            Log.e(TAG, "got list " + mPath.list(filter));
         } else {
-            mFileLlist = new String[0];
+            mFileList = new String[0];
+        }
+    }
+
+    private void checkPermissions(){
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            loadFileList();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    //Load in gpx files for use with load route map
+                    loadFileList();
+
+                } else {
+
+                    Toast.makeText(this,"This app will not work as intended without the right permissions", Toast.LENGTH_LONG).show();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
@@ -184,14 +250,14 @@ public class MainMenu extends AppCompatActivity {
 
         switch (id) {
             case DIALOG_LOAD_FILE: builder.setTitle(R.string.choose_route_menu);
-                if (mFileLlist == null) {
+                if (mFileList == null) {
                     Log.e(TAG, "Showing file picker before loading the file list");
                     dialog = builder.create();
                     return dialog;
                 }
-                builder.setItems(mFileLlist, new DialogInterface.OnClickListener() {
+                builder.setItems(mFileList, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mChosenFile = mFileLlist[which];
+                        mChosenFile = mFileList[which];
 
                         SharedPreferences.Editor editor = sharedpreferences.edit();
                         editor.clear();

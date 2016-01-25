@@ -44,7 +44,8 @@ public class RouteEndedActivity extends AppCompatActivity {
 
 
         EditText nameField = (EditText) findViewById(R.id.route_name_field);
-        String fileName = nameField.getText().toString();
+        String routeName = nameField.getText().toString();
+        String fileName = routeName.replace(" ","_").toLowerCase();
 
         routeFile = new File(getFilesDir(), FILENAME);
 
@@ -57,7 +58,7 @@ public class RouteEndedActivity extends AppCompatActivity {
         GPXWriter gpxFile = new GPXWriter();
         try {
             file.createNewFile();
-            gpxFile.writePath(file, fileName, points);
+            gpxFile.writePath(file, routeName, points);
 
             Log.i(TAG, "Route Saved " + file.getName());
 

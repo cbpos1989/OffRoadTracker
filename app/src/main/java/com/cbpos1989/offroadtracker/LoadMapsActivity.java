@@ -80,7 +80,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_load_maps);
 
         //Get user choice to either display demo route or live route
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);

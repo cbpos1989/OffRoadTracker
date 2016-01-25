@@ -112,9 +112,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
-        ImageButton imageButton = (ImageButton) findViewById(R.id.playbackBtn);
-        imageButton.setVisibility(View.INVISIBLE);
-
         //Setting up Google Map
         buildGoogleApiClient();
         mGoogleApiClient.connect();
