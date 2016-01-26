@@ -16,7 +16,6 @@
         android:layout_weight="2"
         android:gravity="center">
 
-
         <ImageButton
             android:layout_width="75dp"
             android:layout_height="75dp"
@@ -27,6 +26,36 @@
             android:onClick="stopLocationListener"
             android:background="@null"
             android:src="@drawable/navigation_selector"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:id="@+id/pausedButtonsPanel">
+
+           <ImageButton
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center|bottom"
+                android:padding="10dp"
+                android:layout_marginBottom="20dp"
+                android:onClick="stopLocationListener"
+                android:background="@null"
+                android:src="@drawable/ic_navigation_red_48dp"/>
+
+            <ImageButton
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center|bottom"
+                android:padding="10dp"
+                android:layout_marginBottom="20dp"
+                android:id="@+id/endRouteButton"
+                android:onClick="showDialog"
+                android:background="@null"
+                android:src="@drawable/ic_dead_end_white_48dp"/>
+        </LinearLayout>
+
         <ImageButton
             android:layout_width="75dp"
             android:layout_height="75dp"

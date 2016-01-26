@@ -21,8 +21,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -86,6 +88,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private int moveCameraFactor = 10;
     static boolean firstCoord = true;
     private static LatLng prevCoordinates;
+    private LinearLayout mLayout;
 
     private File routeFile;
 
@@ -105,8 +108,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         Bundle bundle = intent.getExtras();
         Log.i(TAG, "RouteFinshed = " + routeFinished);
 
-
-
+        //Hide Paused Route Button Panel on Start-Up
+        mLayout = (LinearLayout) findViewById(R.id.pausedButtonsPanel);
+        mLayout.setVisibility(View.INVISIBLE);
 
         //Log.i(TAG,"Coords from pref: " + coords);
 
@@ -412,19 +416,13 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+        button.setVisibility(View.VISIBLE);
+        mLayout.setVisibility(View.INVISIBLE);
 
         if(stopLoc){
             pauseRoute(locationManager);
         } else{
             trackRoute(locationManager);
-
-            button.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showDialog();
-                    return false;
-                }
-            });
         }
     }
 
@@ -432,6 +430,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         Toast.makeText(this, "Pausing Route", Toast.LENGTH_SHORT).show();
         ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
 
+        button.setVisibility(View.INVISIBLE);
+        mLayout.setVisibility(View.VISIBLE);
 
         try {
             locationManager.removeUpdates(this);
@@ -439,7 +439,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             se.printStackTrace();
         }
 
-        button.setImageResource(R.drawable.ic_navigation_red_48dp);
+        //button.setImageResource(R.drawable.ic_navigation_red_48dp);
 
         stopLoc = !stopLoc;
     }
@@ -467,12 +467,19 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
+        ImageButton button = (ImageButton) findViewById(R.id.stopLocListenerBtn);
+        button.setVisibility(View.VISIBLE);
+        mLayout.setVisibility(View.INVISIBLE);
+
+
         try {
             locationManager.removeUpdates(this);
         } catch (SecurityException se) {
             se.printStackTrace();
         }
 
+
+        button.setImageResource(R.drawable.ic_navigation_red_48dp);
 
         //Reset Map
         MapsActivity.firstCoord = true;
@@ -667,7 +674,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         }
     }
 
-    void showDialog() {
+    public void showDialog(View view) {
         DialogFragment newFragment = StopTrackingDialogFragment.newInstance();
         newFragment.show(getFragmentManager(), "dialog");
     }
