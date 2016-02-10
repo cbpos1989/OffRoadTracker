@@ -296,12 +296,16 @@ public class MainMenu extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     MapsActivity.firstCoord = true;
                     finish();
+
+                    //Clear internal .gpx files that are used for redrawing both the live and loaded routes
                     File routeFile = new File(getFilesDir(), FILENAME);
-                    boolean routeDeleted = routeFile.delete();
+                    File loadRouteFile = new File(getFilesDir(), "load_" + FILENAME);
+                    Log.i(TAG,"Route Files Cleared routeFile = " + routeFile.delete() + " loadRouteFile = " +loadRouteFile.delete());
+
+                    //Clear the route that was previously chosen by the user
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.remove("chosenRoute");
                     editor.commit();
-                    Log.i(TAG, "Route Deleted");
                     System.exit(0);
                 }
             });

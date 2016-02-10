@@ -203,6 +203,10 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         editor.putInt("point_count", count);
         editor.commit();
 
+
+        mMap.clear();
+        Log.i(TAG, "Map Cleared");
+
         //gpxReader.cancel(true);
         super.onDestroy();
     }
