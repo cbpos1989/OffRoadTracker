@@ -46,11 +46,11 @@
             android:padding="10dp"
             android:scaleType="fitCenter"
             android:layout_marginBottom="20dp"
-            android:id="@+id/compassBtn"
+            android:id="@+id/loadRoutesBtn"
             android:adjustViewBounds="true"
-            android:onClick="goBack"
+            android:onClick="loadNewRoute"
             android:background="@null"
-            android:src="@drawable/ic_explore_red_48dp"/>
+            android:src="@drawable/ic_view_list_red_48dp"/>
     </fragment>
 
 

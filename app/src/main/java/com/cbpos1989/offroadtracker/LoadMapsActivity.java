@@ -45,6 +45,7 @@ import java.util.ArrayList;
  */
 public class LoadMapsActivity extends FragmentActivity implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapLongClickListener, onPauseRoute{
     private static final String TAG = "LoadMapsActivity";
+    private static final int DIALOG_LOAD_NEW_FILE = 2000;
     private final String FILENAME = "load_route.gpx";
     private final String USER_PREFERENCES = "userOptions";
     private String FIREBASE_URL;
@@ -132,6 +133,10 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         gpxReader = new GPXReader();
 
+        setupFile();
+    }
+
+    private void setupFile(){
         //Loads internal GPX File
         routeFile = new File(this.getFilesDir(), FILENAME);
         loadCurrentRoute(routeFile);
@@ -545,6 +550,23 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         return new LatLng(coordsList.get(0),coordsList.get(1));
     }
+
+    public void loadNewRoute(View view){
+        //Clear internal .gpx files that are used for redrawing loaded route
+        File loadRouteFile = new File(getFilesDir(), FILENAME);
+        Log.i(TAG,"loadRouteFile = " +loadRouteFile.delete());
+
+        //Clear the route that was previously chosen by the user
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove("chosenRoute");
+        editor.commit();
+
+        new LoadRouteDialog(sharedPref, this, DIALOG_LOAD_NEW_FILE);
+
+        setupFile();
+    }
+
+
 }
 
 enum PlaybackState{

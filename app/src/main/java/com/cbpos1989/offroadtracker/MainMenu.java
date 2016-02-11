@@ -147,7 +147,8 @@ public class MainMenu extends AppCompatActivity {
             Intent loadMapActivity = new Intent(getApplicationContext(), LoadMapsActivity.class);
             startActivity(loadMapActivity);
         } else {
-            onCreateDialog(DIALOG_LOAD_FILE);
+            //onCreateDialog(DIALOG_LOAD_FILE);
+            new LoadRouteDialog(sharedpreferences, this, DIALOG_LOAD_FILE);
         }
 
 
