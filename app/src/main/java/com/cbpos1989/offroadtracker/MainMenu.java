@@ -148,7 +148,11 @@ public class MainMenu extends AppCompatActivity {
             startActivity(loadMapActivity);
         } else {
             //onCreateDialog(DIALOG_LOAD_FILE);
-            new LoadRouteDialog(sharedpreferences, this, DIALOG_LOAD_FILE);
+            LoadRouteDialog loadRouteDialog = new LoadRouteDialog(sharedpreferences,this);
+
+            //TODO NOT Working need to figure out how to load after choosing
+            //Intent loadMapActivity = new Intent(this, LoadMapsActivity.class);
+            //startActivity(loadMapActivity);
         }
 
 

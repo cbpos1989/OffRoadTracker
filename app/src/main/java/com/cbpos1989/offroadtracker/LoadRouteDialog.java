@@ -19,6 +19,7 @@ import java.io.FilenameFilter;
 public class LoadRouteDialog extends AppCompatActivity{
     private final String TAG = "LoadRouteDialog";
 
+
     private String[] mFileList;
     private File mPath = new File(Environment.getExternalStorageDirectory() + "//off-road_tracker_routes//");
     private String mChosenFile;
@@ -29,14 +30,25 @@ public class LoadRouteDialog extends AppCompatActivity{
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     private SharedPreferences sharedPreferences;
+    private LoadMapsActivity loadMapsActivity;
     private Context context;
 
-    public LoadRouteDialog(SharedPreferences sharedPreferences, Context context, int id){
+    public LoadRouteDialog(SharedPreferences sharedPreferences, Context context){
         this.sharedPreferences = sharedPreferences;
         this.context = context;
+        Log.i(TAG, this.context.toString());
         loadFileList();
-        onCreateDialog(id);
+        onCreateDialog(DIALOG_LOAD_FILE);
     }
+
+    public LoadRouteDialog(SharedPreferences sharedPreferences, LoadMapsActivity loadMapsActivity, Context context){
+        this.sharedPreferences = sharedPreferences;
+        this.loadMapsActivity = loadMapsActivity;
+        this.context = context;
+        loadFileList();
+        onCreateDialog(DIALOG_LOAD_NEW_FILE);
+    }
+
 
     /**
      * Loads all gpx files present in app directory used for storing routes.
@@ -92,16 +104,16 @@ public class LoadRouteDialog extends AppCompatActivity{
                         editor.putString("chosenRoute", mChosenFile);
                         editor.commit();
 
-                        //TODO NOT Working need to figure out how to load after choosing
                         Intent loadMapActivity = new Intent(context, LoadMapsActivity.class);
-                        startActivity(loadMapActivity);
+                        context.startActivity(loadMapActivity);
+
                     }
                 });
                 builder.setPositiveButton(R.string.positive_button_message_alt, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent loadMapActivity = new Intent(context, LoadMapsActivity.class);
-                        startActivity(loadMapActivity);
+                        context.startActivity(loadMapActivity);
                     }
                 });
                 builder.setNegativeButton(R.string.negative_button_message_alt, new DialogInterface.OnClickListener() {
@@ -125,6 +137,8 @@ public class LoadRouteDialog extends AppCompatActivity{
                         editor.clear();
                         editor.putString("chosenRoute", mChosenFile);
                         editor.commit();
+
+                        loadMapsActivity.setupFile();
                     }
                 });
                 builder.setNegativeButton(R.string.negative_button_message_alt, new DialogInterface.OnClickListener() {

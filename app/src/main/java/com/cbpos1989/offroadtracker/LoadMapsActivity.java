@@ -136,7 +136,8 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         setupFile();
     }
 
-    private void setupFile(){
+    //TODO Need to seperate method between new routes and current routes
+    protected void setupFile(){
         //Loads internal GPX File
         routeFile = new File(this.getFilesDir(), FILENAME);
         loadCurrentRoute(routeFile);
@@ -556,14 +557,14 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         File loadRouteFile = new File(getFilesDir(), FILENAME);
         Log.i(TAG,"loadRouteFile = " +loadRouteFile.delete());
 
+        route.remove();
         //Clear the route that was previously chosen by the user
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.remove("chosenRoute");
+        editor.remove("Coords");
         editor.commit();
 
-        new LoadRouteDialog(sharedPref, this, DIALOG_LOAD_NEW_FILE);
-
-        setupFile();
+        new LoadRouteDialog(sharedPref, this, this);
     }
 
 
