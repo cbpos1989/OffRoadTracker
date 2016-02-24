@@ -134,11 +134,10 @@ public class LoadRouteDialog extends AppCompatActivity{
                         mChosenFile = mFileList[which];
 
                         SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.clear();
                         editor.putString("chosenRoute", mChosenFile);
                         editor.commit();
 
-                        loadMapsActivity.setupFile();
+                        loadMapsActivity.resetFile();
                     }
                 });
                 builder.setNegativeButton(R.string.negative_button_message_alt, new DialogInterface.OnClickListener() {

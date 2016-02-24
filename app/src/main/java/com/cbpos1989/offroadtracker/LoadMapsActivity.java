@@ -150,6 +150,22 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         }
     }
 
+    protected void resetFile(){
+
+        //Get user choice of route
+        mChosenRoute = sharedPref.getString("chosenRoute", null);
+        sharedPref = getSharedPreferences("PointCount", Context.MODE_PRIVATE);
+        count = sharedPref.getInt("point_count", 0);
+
+        //Loads chosen GPX File
+        if(mChosenRoute != null) {
+            mChosenFile = new File(mPath, mChosenRoute);
+
+        } else {
+            Toast.makeText(this,"No Route Chosen, Choose a route from the route menu",Toast.LENGTH_LONG).show();
+        }
+    }
+
     /**
      * Retrieves gpx file from internal app files and sends file to parser
      * an ArrayList of LatLng is returned and used in for loop to redraw polylines route.
@@ -563,6 +579,12 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         editor.remove("chosenRoute");
         editor.remove("Coords");
         editor.commit();
+        mChosenRoute =null;
+        mChosenFile = null;
+        firstCoord = true;
+        count = 0;
+        mMap.clear();
+
 
         new LoadRouteDialog(sharedPref, this, this);
     }
