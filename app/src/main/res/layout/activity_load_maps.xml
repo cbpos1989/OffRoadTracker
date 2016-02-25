@@ -1,5 +1,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,43 +15,13 @@
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_weight="2"
-        android:gravity="center">
+        android:gravity="center"
+        tools:layout="@layout/load_maps_buttons_layout">
 
-
-        <ImageButton
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_gravity="right|bottom"
-            android:padding="10dp"
-            android:layout_marginBottom="20dp"
-            android:id="@+id/stopLocListenerBtn"
-            android:onClick="stopLocationListener"
-            android:background="@null"
-            android:src="@drawable/navigation_selector"/>
-        <ImageButton
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_gravity="center|bottom"
-            android:padding="10dp"
-            android:scaleType="fitCenter"
-            android:layout_marginBottom="20dp"
-            android:id="@+id/playbackBtn"
-            android:adjustViewBounds="true"
-            android:onClick="playbackListener"
-            android:background="@null"
-            android:src="@drawable/playback_selector"/>
-        <ImageButton
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_gravity="left|bottom"
-            android:padding="10dp"
-            android:scaleType="fitCenter"
-            android:layout_marginBottom="20dp"
-            android:id="@+id/loadRoutesBtn"
-            android:adjustViewBounds="true"
-            android:onClick="loadNewRoute"
-            android:background="@null"
-            android:src="@drawable/ic_view_list_red_48dp"/>
+        <include layout="@layout/load_maps_buttons_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"/>
     </fragment>
 
 
