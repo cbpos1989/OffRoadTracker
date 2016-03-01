@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
@@ -77,6 +78,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     private InputStream routeInputStream;
     private int count;
     private boolean stopLoc;
+    private SeekBar routeSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         SharedPreferences sharedpreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
         String coords = sharedpreferences.getString("Coords", null);
         mChosenRoute = sharedpreferences.getString("chosenRoute", null);
-        
+
         Log.i(TAG,"Coords from pref: " + coords);
         Log.i(TAG,"mChosenRoute = " + mChosenRoute);
 
@@ -95,6 +97,8 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         ImageButton imageButton = (ImageButton) findViewById(R.id.playbackBtn);
         imageButton.setVisibility(View.VISIBLE);
+
+
 
         //Setting up Google Map
         buildGoogleApiClient();
@@ -134,6 +138,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         gpxReader = new GPXReader();
 
         setupFile();
+
     }
 
     //TODO Need to seperate method between new routes and current routes
@@ -189,6 +194,35 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
             }
 
         }
+
+        setupSeekBar(polylinePoints.size());
+    }
+
+    /**
+     * TODO Figure out how points on route relate to the progress value of seekbar
+     * Setup the seekbar that will allow the user to skip forward with chosen route
+     */
+    private void setupSeekBar(int maxProgress){
+        routeSeekBar = (SeekBar) findViewById(R.id.route_seekbar);
+
+        routeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+           int progressValue = 0;
+           @Override
+           public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+               progressValue = progress;
+
+           }
+
+           @Override
+           public void onStartTrackingTouch(SeekBar seekBar) {
+               Toast.makeText(getApplicationContext(), "Progress = " + progressValue,Toast.LENGTH_SHORT).show();
+           }
+
+           @Override
+           public void onStopTrackingTouch(SeekBar seekBar) {
+               Toast.makeText(getApplicationContext(), "Progress = " + progressValue,Toast.LENGTH_SHORT).show();
+           }
+       });
     }
 
     @Override
@@ -385,9 +419,9 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
     public void playbackListener(View view) {
         ImageButton button = (ImageButton) findViewById(R.id.playbackBtn);
-        
+
         switch (playbackState){
-            case NORMAL: 
+            case NORMAL:
                 playbackSpeed = 750;
                 gpxReader.setSpeed(750);
                 button.setImageResource(R.drawable.ic_playback_speed_x4_48dp);
