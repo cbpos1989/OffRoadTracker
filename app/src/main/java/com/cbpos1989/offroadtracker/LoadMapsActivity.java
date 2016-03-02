@@ -78,7 +78,9 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
     private InputStream routeInputStream;
     private int count;
     private boolean stopLoc;
+
     private SeekBar routeSeekBar;
+    private ArrayList<LatLng> allPoints = new ArrayList<LatLng>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +140,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
         gpxReader = new GPXReader();
 
         setupFile();
+        setupSeekBar();
 
     }
 
@@ -181,7 +184,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         gpxReader.readPath(file);
 
-        ArrayList<LatLng> polylinePoints = (ArrayList<LatLng>) gpxReader.getPoints();
+        ArrayList<LatLng> polylinePoints = (ArrayList)gpxReader.getPoints();
 
         Log.d(TAG, "PolylinePoints: " + polylinePoints.size());
         if(polylinePoints.size() > 1){
@@ -195,21 +198,30 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
         }
 
-        setupSeekBar(polylinePoints.size());
+
     }
 
     /**
-     * TODO Figure out how points on route relate to the progress value of seekbar
+     * TODO seekbar works going forward no live updating and really slows app
      * Setup the seekbar that will allow the user to skip forward with chosen route
      */
-    private void setupSeekBar(int maxProgress){
+    private void setupSeekBar(){
+        if(mChosenFile != null) {
+            gpxReader.resetPoints();
+            gpxReader.readPath(mChosenFile);
+            allPoints = (ArrayList) gpxReader.getPoints();
+
+        }
         routeSeekBar = (SeekBar) findViewById(R.id.route_seekbar);
+
+        routeSeekBar.setMax(allPoints.size());
 
         routeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
            int progressValue = 0;
            @Override
            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                progressValue = progress;
+
 
            }
 
@@ -220,7 +232,15 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
 
            @Override
            public void onStopTrackingTouch(SeekBar seekBar) {
-               Toast.makeText(getApplicationContext(), "Progress = " + progressValue,Toast.LENGTH_SHORT).show();
+               points.clear();
+               firstCoord = false;
+
+               for(int i = 0; i < progressValue; ++i) {
+                   points.add(allPoints.get(i));
+               }
+               prevCoordinates = (LatLng)points.get(points.size() -1);
+               count = points.size();
+               Toast.makeText(getApplicationContext(), "Progress = " + points.size(),Toast.LENGTH_SHORT).show();
            }
        });
     }

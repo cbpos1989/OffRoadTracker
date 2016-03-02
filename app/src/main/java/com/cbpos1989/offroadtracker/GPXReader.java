@@ -115,9 +115,10 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
 
             parseFile(lines);
 
+            /*
             for(LatLng lt: getPoints()){
-                //Log.i("GPX Output", lt.toString());
-            }
+                Log.i("GPX Output", lt.toString());
+            }*/
 
 
         } catch (FileNotFoundException e) {
@@ -212,7 +213,7 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
      * reset method for points.
      */
     public void resetPoints(){
-        points = null;
+        points.clear();
     }
 
     public int getSpeed(){
