@@ -221,7 +221,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
            @Override
            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                progressValue = progress;
-
+                drawLine(allPoints.get(progressValue));
 
            }
 
@@ -238,6 +238,7 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
                for(int i = 0; i < progressValue; ++i) {
                    points.add(allPoints.get(i));
                }
+
                prevCoordinates = (LatLng)points.get(points.size() -1);
                count = points.size();
                Toast.makeText(getApplicationContext(), "Progress = " + points.size(),Toast.LENGTH_SHORT).show();

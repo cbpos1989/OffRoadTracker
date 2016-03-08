@@ -310,6 +310,7 @@ public class MainMenu extends AppCompatActivity {
                     //Clear the route that was previously chosen by the user
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.remove("chosenRoute");
+                    editor.remove("point_count");
                     editor.commit();
                     System.exit(0);
                 }

@@ -27,7 +27,7 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
     private double longitude;
     private final String TAG = "GPXReader";
     FragmentActivity mapsActivity;
-    private int count;
+    private int count = 0;
     private int speed = 1000;
 
     public GPXReader(){
@@ -78,7 +78,9 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
                     //Log.i(TAG, "Point: " + points.get(count));
                     //TODO Make Mapable Interface for both Activites to use these methods
                     ((LoadMapsActivity) mapsActivity).onPauseRoute(count);
+                    Log.i(TAG, "Count = " + count + " Points = " + points.size());
                     ((LoadMapsActivity) mapsActivity).drawLine(points.get(count++));
+
                     if (count <= points.size() - 1) {
                         timedOutput(getSpeed());
                         Log.i(TAG,"Speed: " + speed);
@@ -173,6 +175,7 @@ public class GPXReader extends AsyncTask<Object,Integer,Integer>{
      * @param lines
      */
     private void parseFile(ArrayList<String> lines) {
+        points.clear();
         for (String str : lines) {
             if (str.contains("<trkpt")) {
                 continue;
