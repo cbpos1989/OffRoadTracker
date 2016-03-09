@@ -25,6 +25,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
+/**
+ * Main Menu class that give the user the option to open the live route tracking or load a previous
+ * route. It also feature a live compass and field to enter co-ordinates.
+ *
+ * Created by Colm O'Sullivan on 28/09/2015.
+ */
 public class MainMenu extends AppCompatActivity {
     private final String TAG = "MainMenu";
     private final String FILENAME = "route.gpx";
@@ -45,10 +51,8 @@ public class MainMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-        //Log.i(TAG, "In Main Menu");
 
         coordsField = (EditText) findViewById(R.id.coords_field);
-        //coordsField.setText(" ");
 
         //TODO Might add settings menu later will need to display ActionBar
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -57,8 +61,6 @@ public class MainMenu extends AppCompatActivity {
         }
 
         checkPermissions();
-
-
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -166,7 +168,7 @@ public class MainMenu extends AppCompatActivity {
         try{
             mPath.mkdirs();
         } catch (SecurityException e) {
-            Log.e(TAG,"unable to write on the sd card " + e.toString());
+            Log.e(TAG,"Unable to write on the sd card " + e.toString());
         }
 
         if (mPath.exists()) {
@@ -179,12 +181,16 @@ public class MainMenu extends AppCompatActivity {
                 }
             };
             mFileList = mPath.list(filter);
-            Log.e(TAG, "got list " + mPath.list(filter));
+            Log.e(TAG, "Got List " + mPath.list(filter));
         } else {
             mFileList = new String[0];
         }
     }
 
+    /**
+     * Make sure the app gets permission from the user to read and write files to the phones root
+     * directory.
+     */
     private void checkPermissions(){
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
@@ -195,7 +201,7 @@ public class MainMenu extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-                // Show an expanation to the user *asynchronously* -- don't block
+                // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
@@ -216,6 +222,11 @@ public class MainMenu extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Once the permission check is made now check if the user has granted the app the proper
+     * access.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -229,16 +240,12 @@ public class MainMenu extends AppCompatActivity {
                     loadFileList();
 
                 } else {
-
                     Toast.makeText(this,"This app will not work as intended without the right permissions", Toast.LENGTH_LONG).show();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -292,11 +299,18 @@ public class MainMenu extends AppCompatActivity {
         return dialog;
     }
 
+    /**
+     * Checking to see if the user hit the back button, if so give them a final dialog to check if
+     * they want to leave the app.
+     * @param keyCode
+     * @param event
+     * @return
+     */
     public boolean onKeyDown(int keyCode,KeyEvent event){
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Do you want to quit app?");
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.quit_dialog_message);
+            builder.setPositiveButton(R.string.positive_dialog_choice, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     MapsActivity.firstCoord = true;
@@ -305,7 +319,7 @@ public class MainMenu extends AppCompatActivity {
                     //Clear internal .gpx files that are used for redrawing both the live and loaded routes
                     File routeFile = new File(getFilesDir(), FILENAME);
                     File loadRouteFile = new File(getFilesDir(), "load_" + FILENAME);
-                    Log.i(TAG,"Route Files Cleared routeFile = " + routeFile.delete() + " loadRouteFile = " +loadRouteFile.delete());
+                    Log.i(TAG, "Route Files Cleared // routeFile = " + routeFile.delete() + " // loadRouteFile = " + loadRouteFile.delete());
 
                     //Clear the route that was previously chosen by the user
                     SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -315,7 +329,7 @@ public class MainMenu extends AppCompatActivity {
                     System.exit(0);
                 }
             });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.negative_dialog_choice, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
@@ -324,14 +338,9 @@ public class MainMenu extends AppCompatActivity {
 
             builder.show();
 
-
-
             return  true;
         }
 
         return super.onKeyDown(keyCode,event);
     }
-
-
-
 }

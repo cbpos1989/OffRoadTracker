@@ -4,7 +4,7 @@
     <string name="title_activity_maps_load">Map</string>
     <string name="title_activity_main_menu">MainMenu</string>
     <string name="compass_heading">Heading 0.0°</string>
-
+    <string name="quit_dialog_message">Do you want to quit the app?</string>
 
     <string name="action_settings">Settings</string>
     <string name="open_map_button">Open Map</string>
@@ -22,8 +22,8 @@
     <string name="edit_route_name_hint">Route Name</string>
     <string name="edit_route_comment_hint">Comments</string>
     <string name="stop_tracking_message">Do you want to stop tracking route?</string>
-    <string name="positive_button_message">Yes</string>
-    <string name="negative_button_message">No</string>
+    <string name="positive_dialog_choice">Yes</string>
+    <string name="negative_dialog_choice">No</string>
     <string name="positive_button_message_alt">Open</string>
     <string name="negative_button_message_alt">Close</string>
     <string name="dist_text_view">Dist: 25.2 km</string>

@@ -575,12 +575,12 @@ public class LoadMapsActivity extends FragmentActivity implements LocationListen
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage(R.string.stop_tracking_message)
-                    .setPositiveButton(R.string.positive_button_message, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.positive_dialog_choice, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             ((LoadMapsActivity)getActivity()).doPositiveClick();
                         }
                     })
-                    .setNegativeButton(R.string.negative_button_message, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.negative_dialog_choice, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             ((LoadMapsActivity)getActivity()).doNegativeClick();
                         }

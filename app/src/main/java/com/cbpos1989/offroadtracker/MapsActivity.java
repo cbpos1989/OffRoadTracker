@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -659,12 +658,12 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage(R.string.stop_tracking_message)
-                    .setPositiveButton(R.string.positive_button_message, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.positive_dialog_choice, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             ((MapsActivity)getActivity()).doPositiveClick();
                         }
                     })
-                    .setNegativeButton(R.string.negative_button_message, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.negative_dialog_choice, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             ((MapsActivity)getActivity()).doNegativeClick();
                         }
